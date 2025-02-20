@@ -1,0 +1,7 @@
+whisper:
+  model: turbo
+  language: en
+
+gpt:
+  apiKey: "sk-pwnyrdnbibbzswbntetohoydlwbetknqzlrkigimzzrmyifi"
+  model: "Qwen/Qwen2.5-72B-Instruct"

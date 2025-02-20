@@ -1,0 +1,5 @@
+requests==2.32.3
+pyyaml==6.0.2
+progressbar2==4.2.0
+chardet==4.0.0
+pydub==0.25.1
