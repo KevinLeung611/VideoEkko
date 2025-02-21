@@ -4,11 +4,10 @@ from pathlib import Path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from ve.common import constants
 
-_SOURCE_PATH = os.path.join(constants.ROOT_PATH, 'source')
 _VIDEO_SUFFIX = constants.VIDEO_SUFFIX
 
-def retrieve_videos():
-    files = [file.name for file in Path(_SOURCE_PATH).iterdir() if file.is_file()]
+def retrieve_videos(video_path: str = None):
+    files = [file.name for file in Path(video_path).iterdir() if file.is_file()]
     print(files)
 
     video_files = [file for file in files if file.split('.')[1] in _VIDEO_SUFFIX]
@@ -23,7 +22,7 @@ def retrieve_videos():
             'fullname': f"{video_name}.{suffix}",
             'name': video_name,
             'type': suffix,
-            'path': os.path.join(_SOURCE_PATH, video_file)
+            'path': os.path.join(video_path, video_file)
         })
 
     return result

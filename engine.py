@@ -6,12 +6,14 @@ from ve import subtitle
 from ve import video
 from ve.common import constants
 
+_SOURCE_PATH = os.path.join(constants.ROOT_PATH, 'source')
 _OUTPUT_PATH = os.path.join(constants.ROOT_PATH, 'output')
 _TEMP_PATH = os.path.join(constants.ROOT_PATH, 'temp')
 
-def main():
-    video_files = parse.retrieve_videos()
+def generate_videos(video_path: str = None):
+    video_files = video_path if not video_path else parse.retrieve_videos(_SOURCE_PATH)
 
+    output_videos = []
     for video_file in video_files:
         print(f"Processing video: {video_file}")
 
@@ -32,5 +34,9 @@ def main():
         print("4️⃣Start to merge subtitle into video...")
         video.merge_subtitle(video_file['path'], translated_file, os.path.join(_OUTPUT_PATH, video_file['fullname']))
 
+        output_videos.append(os.path.join(_OUTPUT_PATH, video_file['fullname']))
+
+    return output_videos
+
 if __name__ == '__main__':
-    main()
+    generate_videos("source")

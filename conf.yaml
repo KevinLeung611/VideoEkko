@@ -3,5 +3,6 @@ whisper:
   language: en
 
 gpt:
+  platform: "silicon"
   apiKey: "sk-pwnyrdnbibbzswbntetohoydlwbetknqzlrkigimzzrmyifi"
   model: "Qwen/Qwen2.5-72B-Instruct"

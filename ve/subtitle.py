@@ -9,7 +9,7 @@ from ve import parse
 
 
 def translate(subtitle_file: str):
-    prompt = "You are a professional translator. Please translate the following text to chinese."
+    prompt = "You are a professional translator. Please translate the following sentence into Chinese. Do not provide any explanations, improvements, or additional suggestions. Only provide the translation."
 
     file_name = os.path.basename(subtitle_file).split(".")[0]
     suffix_name = os.path.basename(subtitle_file).split(".")[1]
@@ -54,4 +54,5 @@ def save(translate_result, output_dir: str):
     return file_path
 
 if __name__ == '__main__':
-    pass
+    from ve.common import constants
+    translate(os.path.join(constants.ROOT_PATH, 'temp/breakBadHabit.srt'))
