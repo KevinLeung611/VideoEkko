@@ -9,7 +9,7 @@ VideoEkko 这是一款使用简单的视频翻译工具，由 AI 作为翻译内
 
 ## 操作界面
 
-![]()
+![interface](asset/demo.png)
 
 ## 性能展示
 
