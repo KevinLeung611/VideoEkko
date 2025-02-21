@@ -1,4 +1,4 @@
-# VideoEkko
+# VideoEkko [开发阶段]
 
 ## 简介
 VideoEkko 是一款简单易用，高性能的视频翻译工具，由 AI 作为翻译内核，译文更精准，流畅
