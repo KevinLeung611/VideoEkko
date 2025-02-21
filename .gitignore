@@ -111,3 +111,6 @@ ENV/
 source/
 temp/
 output/
+
+.DS_Store
+.gradio
