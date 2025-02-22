@@ -108,9 +108,11 @@ ENV/
 .vscode/
 .idea/
 
-source/
-temp/
-output/
+source/*
+temp/*
+output/*
 
 .DS_Store
 .gradio
+
+!.gitkeep

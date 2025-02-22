@@ -1,8 +1,10 @@
+src_lang: English
+target_lang: Japanese
+
 whisper:
-  model:
-  language:
+  model: turbo
 
 gpt:
-  platform:
-  apiKey:
-  model:
+  platform: silicon
+  apiKey: sk-ifqgbillqopxohkxtbbqjochkgkjqvxplrdtzddzmvhbzfzo
+  model: Qwen/Qwen2.5-72B-Instruct

@@ -6,3 +6,4 @@ pydub==0.25.1
 gradio==5.16.2
 socksio==1.0.0
 socks==0
+tqdm==4.67.1

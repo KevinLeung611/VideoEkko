@@ -16,7 +16,9 @@ def _init():
 
 yaml_config = _init()
 
-def get_config(name: str):
+def get_config(name: str = None):
+    if not name:
+        return yaml_config
     return yaml_config[name]
 
 if __name__ == '__main__':

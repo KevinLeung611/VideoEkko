@@ -43,10 +43,11 @@ def completions(system_prompt: str, user_prompt: str):
     }
 
     response = requests.post(completions_url, json=payload, headers=headers)
+
     return response.json()
 
 
 if __name__ == '__main__':
-    system_prompt = "你是一个专业的翻译器，请将下面的英文文本翻译成中文"
-    user_prompt = "Creates a button, that when clicked, allows a user to download a single file of arbitrary type."
+    system_prompt = f"You are a Netflix subtitle translator. Please translate the following {'English'} sentence into {'Chinese'}. Do not provide any additional explanations, improvements, comments, notes or suggestions. Only provide the finally translation."
+    user_prompt = "Well, here's an example from one of our smokers."
     print(completions(system_prompt, user_prompt))

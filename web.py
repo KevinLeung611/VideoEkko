@@ -14,7 +14,8 @@ _WHISPER_MODEL = ["tiny", "base", "small", "medium", "large", "turbo"]
 
 _LANG_MAP = {
     "中文": "Chinese",
-    "英文": "English"
+    "英文": "English",
+    "日语": "Japanese"
 }
 
 
@@ -22,7 +23,6 @@ def page_load():
     whisper_config = config.get_config('whisper')
     if whisper_config:
         whisper_model = 'turbo' if not whisper_config['model'] else whisper_config['model']
-        video_lang = 'English' if not whisper_config['language'] else whisper_config['language']
 
     gpt_config = config.get_config('gpt')
     if gpt_config:
@@ -30,11 +30,15 @@ def page_load():
         api_key = gpt_config['apiKey']
         gpt_model = _PLATFOM_MODEL_MAP.get(_DEFAULT_PLATFORM)[0] if not gpt_config['model'] else gpt_config['model']
 
+    video_lang = 'English' if not config.get_config()['src_lang'] else config.get_config()['src_lang']
+    translated_lang = 'Chinese' if not config.get_config()['target_lang'] else config.get_config()['target_lang']
+
     reverse_lang_map = {}
     for k, v in _LANG_MAP.items():
         reverse_lang_map[v] = k
 
-    return [platform, gpt_model, api_key, whisper_model, reverse_lang_map[video_lang], '中文']
+
+    return [platform, gpt_model, api_key, whisper_model, reverse_lang_map[video_lang], reverse_lang_map[translated_lang]]
 
 
 def gpt_platform_change(value):
@@ -49,7 +53,7 @@ def generate_video(gpt_platform, gpt_model, api_key, whisper_model, video_lang, 
         config.get_config('gpt')['model'] = gpt_model
         config.get_config('gpt')['apiKey'] = api_key
         config.get_config('whisper')['model'] = whisper_model
-        config.get_config('whisper')['language'] = _LANG_MAP[video_lang]
+        config.get_config()['src_lang'] = _LANG_MAP[video_lang]
 
         video_paths = ve_engine.generate_videos(video_path)
         if len(video_paths) == 0:

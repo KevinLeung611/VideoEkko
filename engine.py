@@ -17,20 +17,20 @@ def generate_videos(video_path: str = None):
     for video_file in video_files:
         print(f"Processing video: {video_file}")
 
-        # 从视频中获取音频
+        # Get audio from video
         print("1️⃣Start to extract audio from video...")
         audio_path = video.extract_audio(video_file['path'], os.path.join(_TEMP_PATH, video_file['name']))
 
-        # 将音频转成文本
+        # Convert audio to text
         print("2️⃣Start to transform audio to text...")
         text_file_map = audio.transform_to_text(audio_path, _TEMP_PATH)
 
-        # 将文本翻译成对应的语言
+        # Translate text into the corresponding language
         print("3️⃣Start to translate the subtitle file...")
         translated_result = subtitle.translate(text_file_map['srt'])
         translated_file = subtitle.save(translated_result, _TEMP_PATH)
 
-        # 将翻译后的文本写入到视频
+        # Write translated text to video
         print("4️⃣Start to merge subtitle into video...")
         video.merge_subtitle(video_file['path'], translated_file, os.path.join(_OUTPUT_PATH, video_file['fullname']))
 
