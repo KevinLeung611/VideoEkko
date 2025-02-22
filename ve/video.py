@@ -37,4 +37,4 @@ if __name__ == '__main__':
     from ve.common import constants
 
     extract_audio(os.path.join(constants.ROOT_PATH, 'source/breakBadHabit.mp4'),
-                  os.path.join(constants.ROOT_PATH, 'temp/breakBadHabit.wav'))
+                  os.path.join(constants.ROOT_PATH, 'temp/breakBadHabit'))

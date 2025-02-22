@@ -36,6 +36,10 @@ def generate_videos(video_path: str = None):
 
         output_videos.append(os.path.join(_OUTPUT_PATH, video_file['fullname']))
 
+    print("✅Mission Complete! Check the output result: ")
+    for output in output_videos:
+        print(output)
+
     return output_videos
 
 if __name__ == '__main__':

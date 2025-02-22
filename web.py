@@ -37,12 +37,13 @@ def page_load():
     for k, v in _LANG_MAP.items():
         reverse_lang_map[v] = k
 
-
-    return [platform, gpt_model, api_key, whisper_model, reverse_lang_map[video_lang], reverse_lang_map[translated_lang]]
+    return [platform, gpt_model, api_key, whisper_model, reverse_lang_map[video_lang],
+            reverse_lang_map[translated_lang]]
 
 
 def gpt_platform_change(value):
     return gr.Dropdown(choices=_PLATFOM_MODEL_MAP[value], value=_PLATFOM_MODEL_MAP[value][0])
+
 
 def generate_video(gpt_platform, gpt_model, api_key, whisper_model, video_lang, translate_lang, video_path):
     try:
@@ -59,8 +60,6 @@ def generate_video(gpt_platform, gpt_model, api_key, whisper_model, video_lang, 
         video_paths = ve_engine.generate_videos(video_path)
         if len(video_paths) == 0:
             raise RuntimeError("No video generated")
-
-        print(video_paths)
 
         return video_paths[0]
     except Exception as e:
@@ -95,7 +94,8 @@ def show_interface(demo: gr.Blocks):
             output_video = gr.PlayableVideo(label="生成视频")
 
             trans_btn.click(generate_video,
-                            inputs=[gpt_platform, gpt_model, api_key, whisper_model, video_lang, translate_lang, input_video],
+                            inputs=[gpt_platform, gpt_model, api_key, whisper_model, video_lang, translate_lang,
+                                    input_video],
                             outputs=output_video)
         with gr.Column(scale=1):
             pass
@@ -104,6 +104,6 @@ def show_interface(demo: gr.Blocks):
     demo.load(fn=page_load, outputs=[gpt_platform, gpt_model, api_key, whisper_model, video_lang, translate_lang])
 
 
-with gr.Blocks(theme=gr.themes.Soft()) as demo:
+with gr.Blocks(theme=gr.themes.Soft(), title="videoEkko", css="footer {visibility: hidden}") as demo:
     show_interface(demo)
-demo.launch()
+demo.launch(server_name="0.0.0.0", server_port=7860, share=False)
