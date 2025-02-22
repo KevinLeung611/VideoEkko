@@ -54,6 +54,7 @@ def generate_video(gpt_platform, gpt_model, api_key, whisper_model, video_lang, 
         config.get_config('gpt')['apiKey'] = api_key
         config.get_config('whisper')['model'] = whisper_model
         config.get_config()['src_lang'] = _LANG_MAP[video_lang]
+        config.get_config()['target_lang'] = _LANG_MAP[translate_lang]
 
         video_paths = ve_engine.generate_videos(video_path)
         if len(video_paths) == 0:

@@ -22,7 +22,7 @@ def transform_to_text(audio_file: str, output_dir: str):
     print(f"Executing whisper command: whisper {audio_file} --language {lang} --model {model} -o {output_dir}")
 
     try:
-        with tqdm(desc="Audio Transforming", total=len(au.from_wav(audio_file)) // 1000, ncols=100) as tbar:
+        with tqdm(desc="Audio Transforming", total=len(au.from_wav(audio_file)) // 1000, ncols=100, file=sys.stdout) as tbar:
             process = subprocess.Popen(["whisper", audio_file, "--language", lang, "--model", model, "-o", output_dir],
                                      text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 

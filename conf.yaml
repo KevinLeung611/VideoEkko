@@ -1,5 +1,5 @@
 src_lang: English
-target_lang: Japanese
+target_lang: Chinese
 
 whisper:
   model: turbo

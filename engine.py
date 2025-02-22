@@ -11,7 +11,7 @@ _OUTPUT_PATH = os.path.join(constants.ROOT_PATH, 'output')
 _TEMP_PATH = os.path.join(constants.ROOT_PATH, 'temp')
 
 def generate_videos(video_path: str = None):
-    video_files = video_path if not video_path else parse.retrieve_videos(_SOURCE_PATH)
+    video_files = parse.retrieve_videos(os.path.dirname(video_path)) if video_path else parse.retrieve_videos(_SOURCE_PATH)
 
     output_videos = []
     for video_file in video_files:

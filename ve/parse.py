@@ -8,7 +8,6 @@ _VIDEO_SUFFIX = constants.VIDEO_SUFFIX
 
 def retrieve_videos(video_path: str = None):
     files = [file.name for file in Path(video_path).iterdir() if file.is_file()]
-    print(files)
 
     video_files = [file for file in files if file.split('.')[1] in _VIDEO_SUFFIX]
 

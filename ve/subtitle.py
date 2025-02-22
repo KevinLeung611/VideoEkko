@@ -1,7 +1,9 @@
 import json
 import os
+import re
 import sys
-import tqdm
+
+from tqdm import tqdm
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from ve.gpt import silicon_api as api
@@ -13,11 +15,10 @@ def translate(subtitle_file: str):
     target_lang = config.get_config('target_lang')
     src_lang = config.get_config()['src_lang']
 
-    # prompt = f"You are a Netflix subtitle translator. Please translate the following {src_lang} sentence into {target_lang}. Do not provide any additional explanations, improvements, comments, notes or suggestions. Only provide the final translation."
     prompt = f"""
     You are a Netflix subtitle translator. Please translate the following {src_lang} sentence into {target_lang}.
     Do not provide any additional explanations, improvements, comments, notes or suggestions. Only provide the final translation.
-    return the following json structure exactly:
+    Finally return the following json structure exactly:
     "translations": {{
         "origin_text": "",
         "translation_text": ""
@@ -34,11 +35,21 @@ def translate(subtitle_file: str):
     if suffix_name == "srt":
         srt_infos = parse.parse_srt_file(subtitle_file)
         translated_contents = []
-        for srt_info in tqdm.tqdm(srt_infos, desc="Translating subtitle", ncols=100):
+        json_pattern = re.compile(r'"translations":.*?({.*?})', re.S)
+        for srt_info in tqdm(srt_infos, desc="Translating subtitle", ncols=100, file=sys.stdout):
             response = api.completions(prompt, srt_info['content'])
             translated_content: str = response['choices'][-1]['message']['content']
 
-            translation_info = json.loads(translated_content.split('"translations":')[1].strip())
+            try:
+                json_result = re.search(json_pattern, translated_content)
+                if json_result:
+                    translation_info = json.loads(json_result.group(1))
+                else:
+                    raise SystemError('Json result is None')
+            except (json.decoder.JSONDecodeError, SystemError) as e:
+                print(f"{os.linesep}Parsing json failed. {json_result}, {e}")
+                # 降级处理
+                translation_info = {'translation_text': "翻译失败"}
 
             translated_contents.append({
                 'index': srt_info['index'],
@@ -55,6 +66,7 @@ def translate(subtitle_file: str):
 
     return translate_result
 
+
 def save(translate_result, output_dir: str):
     file_path = None
     if translate_result['type'] == 'srt':
@@ -67,7 +79,9 @@ def save(translate_result, output_dir: str):
 
     return file_path
 
+
 if __name__ == '__main__':
     from ve.common import constants
+
     translate_result = translate(os.path.join(constants.ROOT_PATH, 'temp/breakBadHabit.srt'))
     save(translate_result, os.path.join(constants.ROOT_PATH, 'temp'))
