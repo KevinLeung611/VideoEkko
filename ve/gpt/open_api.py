@@ -1,3 +1,5 @@
+import json.decoder
+
 import openai
 
 
@@ -28,6 +30,8 @@ class OpenAPI:
         except openai.OpenAIError as e:
             print(f"Request an open api failed: {e}, api url: {self.base_url}")
             raise e
+        except json.decoder.JSONDecodeError as e:
+            print(f"Api response decode failed: {e}")
 
 if __name__ == '__main__':
     from ve.common import config

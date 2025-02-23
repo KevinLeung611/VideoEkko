@@ -60,17 +60,18 @@ def do_translate(srt_info: dict):
     model = config.get_config('gpt')['model']
     api = GptFactory(platform).generate_api(model, api_key)
 
-    translated_content: str = api.completions(prompt, srt_info['content'])
-
-    json_pattern = re.compile(r'"translations":.*?({.*?})', re.S)
     try:
+        translated_content: str = api.completions(prompt, srt_info['content'])
+
+        json_pattern = re.compile(r'"translations":.*?({.*?})', re.S)
         json_result = re.search(json_pattern, translated_content)
+
         if json_result:
             translation_info = json.loads(json_result.group(1))
         else:
             raise SystemError('Json result is None')
     except (json.decoder.JSONDecodeError, SystemError) as e:
-        print(f"{os.linesep}Parsing json failed. {json_result}, {e}")
+        print(f"{os.linesep}Parsing json failed. {e}")
         # 降级处理
         translation_info = {'translation_text': "翻译失败"}
 
