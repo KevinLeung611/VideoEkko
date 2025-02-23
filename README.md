@@ -85,7 +85,7 @@ target_lang: Chinese
 
 # whisper 配置
 whisper:
-	# tiny, base, small, medium, large, turboe
+  # tiny, base, small, medium, large, turboe
   model: turbo
 
 gpt:
