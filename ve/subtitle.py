@@ -25,9 +25,10 @@ def translate(subtitle_file: str):
         results = thread_map(do_translate, srt_infos, desc="Translating subtitle", dynamic_ncols=True, file=sys.stdout)
 
         translated_contents = []
-        # TODO: results 重排序
         for result in results:
             translated_contents.append(result)
+
+        translated_contents = sorted(translated_contents, key=lambda x:x['start_time'])
 
         translate_result = {
             'type': 'srt',
