@@ -32,6 +32,7 @@ class OpenAPI:
             raise e
         except json.decoder.JSONDecodeError as e:
             print(f"AI Server response failed! Please check the logs.")
+            raise e
 
 
 if __name__ == '__main__':

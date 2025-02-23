@@ -101,7 +101,7 @@ def show_interface(demo: gr.Blocks):
             api_key = gr.Text(label="API_KEY", placeholder="请输入对应的API_KEY", lines=1)
 
         with gr.Row():
-            whisper_model = gr.Dropdown(_WHISPER_MODEL, label="翻译模型", allow_custom_value=False)
+            whisper_model = gr.Dropdown(_WHISPER_MODEL, label="语音识别模型", allow_custom_value=False)
 
         with gr.Row():
             video_lang = gr.Dropdown(list(_LANG_MAP.keys()), label="原视频语言", allow_custom_value=False)

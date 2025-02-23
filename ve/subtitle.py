@@ -17,12 +17,18 @@ thread_pool = ThreadPoolExecutor(thread_name_prefix="TranslatingPool")
 def translate(subtitle_file: str):
     file_name = os.path.basename(subtitle_file).split(".")[0]
     suffix_name = os.path.basename(subtitle_file).split(".")[1]
+    platform = config.get_config('gpt')['platform']
 
     translate_result = {}
     if suffix_name == "srt":
         srt_infos = parse.parse_srt_file(subtitle_file)
 
-        results = thread_map(do_translate, srt_infos, desc="Translating subtitle", dynamic_ncols=True, file=sys.stdout)
+        max_workers = os.cpu_count() + 2
+        # 如果是deepseek降低为4条线程，因为deepseek服务器容易超负载，返回错误数据
+        if platform == 'deepseek':
+            max_workers = 4
+
+        results = thread_map(do_translate, srt_infos, max_workers=max_workers, desc="Translating subtitle", dynamic_ncols=True, file=sys.stdout)
 
         translated_contents = []
         for result in results:
@@ -48,10 +54,8 @@ def do_translate(srt_info: dict):
     Do not provide any additional explanations, improvements, comments, notes or suggestions. Only provide the final translation.
     Finally return the following json structure exactly:
     "translations": {{
-        "origin_text": "",
         "translation_text": ""
     }}
-    you can put the origin text or any additional messages to the 'origin_text' field within the translation process.
     The 'translation_text' field just stores the final translation text.
     And the translation need to be more personality and modernity.
     """
@@ -70,8 +74,8 @@ def do_translate(srt_info: dict):
             translation_info = json.loads(json_result.group(1))
         else:
             raise SystemError('Json result is None')
-    except (json.decoder.JSONDecodeError, SystemError) as e:
-        print(f"{os.linesep}Parsing json failed. {e}")
+    except Exception as e:
+        print(f"Unexpected error: {e}")
         # 降级处理
         translation_info = {'translation_text': "翻译失败"}
 
