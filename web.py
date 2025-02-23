@@ -6,8 +6,23 @@ from ve.common import config
 _DEFAULT_PLATFORM = 'silicon'
 
 _PLATFOM_MODEL_MAP = {
-    "silicon": ["Qwen/Qwen2.5-72B-Instruct", "Pro/deepseek-ai/DeepSeek-R1"],
-    "DeepSeek": ["R1", "V3"]
+    "silicon": [
+        "Qwen/Qwen2.5-72B-Instruct",
+        "Qwen/Qwen2.5-72B-Instruct-128K",
+        "Pro/deepseek-ai/DeepSeek-R1",
+        "Pro/deepseek-ai/DeepSeek-V3",
+        "meta-llama/Llama-3.3-70B-Instruct",
+    ],
+    "deepseek": [
+        "deepseek-chat",
+        "deepseek-reasoner"
+    ],
+    "openai": [
+        "gpt-4o"
+    ],
+    "ollama": [
+        "llama3.2"
+    ]
 }
 
 _WHISPER_MODEL = ["tiny", "base", "small", "medium", "large", "turbo"]
@@ -104,6 +119,6 @@ def show_interface(demo: gr.Blocks):
     demo.load(fn=page_load, outputs=[gpt_platform, gpt_model, api_key, whisper_model, video_lang, translate_lang])
 
 
-with gr.Blocks(theme=gr.themes.Soft(), title="videoEkko", css="footer {visibility: hidden}") as demo:
+with gr.Blocks(theme=gr.themes.Soft(), title="VideoEkko", css="footer {visibility: hidden}") as demo:
     show_interface(demo)
 demo.launch(server_name="0.0.0.0", server_port=7860, share=False)
