@@ -6,8 +6,23 @@ from ve.common import config
 _DEFAULT_PLATFORM = 'silicon'
 
 _PLATFOM_MODEL_MAP = {
-    "silicon": ["Qwen/Qwen2.5-72B-Instruct", "Pro/deepseek-ai/DeepSeek-R1"],
-    "DeepSeek": ["R1", "V3"]
+    "silicon": [
+        "Pro/deepseek-ai/DeepSeek-V3",
+        "Pro/deepseek-ai/DeepSeek-R1",
+        "Qwen/Qwen2.5-72B-Instruct",
+        "Qwen/Qwen2.5-72B-Instruct-128K",
+        "meta-llama/Llama-3.3-70B-Instruct",
+    ],
+    "deepseek": [
+        "deepseek-chat",
+        "deepseek-reasoner"
+    ],
+    "openai": [
+        "gpt-4o"
+    ],
+    "ollama": [
+        "llama3.2"
+    ]
 }
 
 _WHISPER_MODEL = ["tiny", "base", "small", "medium", "large", "turbo"]
@@ -64,11 +79,11 @@ def generate_video(gpt_platform, gpt_model, api_key, whisper_model, video_lang, 
         return video_paths[0]
     except Exception as e:
         print(e)
-        raise gr.Error("生成视频失败")
+        raise gr.Error(e)
 
 
 def show_interface(demo: gr.Blocks):
-    with gr.Sidebar():
+    with gr.Sidebar(width=380):
         gr.Markdown(
             """
             # VideoEkko
@@ -77,14 +92,25 @@ def show_interface(demo: gr.Blocks):
             """
         )
         with gr.Row():
-            gpt_platform = gr.Dropdown(_PLATFOM_MODEL_MAP.keys(), label="GPT平台")
-            gpt_model = gr.Dropdown(_PLATFOM_MODEL_MAP[_DEFAULT_PLATFORM], label="GPT模型")
-            api_key = gr.Text(label="API_KEY", placeholder="请输入对应的API_KEY", lines=2)
-            whisper_model = gr.Dropdown(_WHISPER_MODEL, label="翻译模型")
-            video_lang = gr.Dropdown(list(_LANG_MAP.keys()), label="原视频语言")
-            translate_lang = gr.Dropdown(list(_LANG_MAP.keys()), label="生成视频语言")
+            gpt_platform = gr.Dropdown(_PLATFOM_MODEL_MAP.keys(), label="GPT平台", allow_custom_value=False)
 
-            gpt_platform.change(gpt_platform_change, inputs=gpt_platform, outputs=gpt_model)
+        with gr.Row():
+            gpt_model = gr.Dropdown(_PLATFOM_MODEL_MAP[_DEFAULT_PLATFORM], label="GPT模型", allow_custom_value=False)
+
+        with gr.Row():
+            api_key = gr.Text(label="API_KEY", placeholder="请输入对应的API_KEY", lines=1)
+
+        with gr.Row():
+            whisper_model = gr.Dropdown(_WHISPER_MODEL, label="翻译模型", allow_custom_value=False)
+
+        with gr.Row():
+            video_lang = gr.Dropdown(list(_LANG_MAP.keys()), label="原视频语言", allow_custom_value=False)
+
+        with gr.Row():
+            translate_lang = gr.Dropdown(list(_LANG_MAP.keys()), label="生成视频语言", allow_custom_value=False)
+
+        gpt_platform.change(gpt_platform_change, inputs=gpt_platform, outputs=gpt_model)
+
     with gr.Row():
         with gr.Column(scale=1):
             pass
@@ -104,6 +130,6 @@ def show_interface(demo: gr.Blocks):
     demo.load(fn=page_load, outputs=[gpt_platform, gpt_model, api_key, whisper_model, video_lang, translate_lang])
 
 
-with gr.Blocks(theme=gr.themes.Soft(), title="videoEkko", css="footer {visibility: hidden}") as demo:
+with gr.Blocks(theme=gr.themes.Soft(), title="VideoEkko", css="footer {visibility: hidden}") as demo:
     show_interface(demo)
 demo.launch(server_name="0.0.0.0", server_port=7860, share=False)

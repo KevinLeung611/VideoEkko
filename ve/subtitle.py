@@ -2,61 +2,32 @@ import json
 import os
 import re
 import sys
+from concurrent.futures import ThreadPoolExecutor
 
-from tqdm import tqdm
+from tqdm.contrib.concurrent import thread_map
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from ve.gpt import silicon_api as api
 from ve import parse
 from ve.common import config
+from ve.gpt.gpt_factory import GptFactory
+
+thread_pool = ThreadPoolExecutor(thread_name_prefix="TranslatingPool")
 
 
 def translate(subtitle_file: str):
-    target_lang = config.get_config('target_lang')
-    src_lang = config.get_config()['src_lang']
-
-    prompt = f"""
-    You are a Netflix subtitle translator. Please translate the following {src_lang} sentence into {target_lang}.
-    Do not provide any additional explanations, improvements, comments, notes or suggestions. Only provide the final translation.
-    Finally return the following json structure exactly:
-    "translations": {{
-        "origin_text": "",
-        "translation_text": ""
-    }}
-    you can put the origin text or any additional messages to the 'origin_text' field within the translation process.
-    the 'translation_text' field just stores the final translation text.
-    And the translation need to be more personality and modernity.
-    """
-
     file_name = os.path.basename(subtitle_file).split(".")[0]
     suffix_name = os.path.basename(subtitle_file).split(".")[1]
 
     translate_result = {}
     if suffix_name == "srt":
         srt_infos = parse.parse_srt_file(subtitle_file)
+
+        results = thread_map(do_translate, srt_infos, desc="Translating subtitle", dynamic_ncols=True, file=sys.stdout)
+
         translated_contents = []
-        json_pattern = re.compile(r'"translations":.*?({.*?})', re.S)
-        for srt_info in tqdm(srt_infos, desc="Translating subtitle", ncols=100, file=sys.stdout):
-            response = api.completions(prompt, srt_info['content'])
-            translated_content: str = response['choices'][-1]['message']['content']
-
-            try:
-                json_result = re.search(json_pattern, translated_content)
-                if json_result:
-                    translation_info = json.loads(json_result.group(1))
-                else:
-                    raise SystemError('Json result is None')
-            except (json.decoder.JSONDecodeError, SystemError) as e:
-                print(f"{os.linesep}Parsing json failed. {json_result}, {e}")
-                # 降级处理
-                translation_info = {'translation_text': "翻译失败"}
-
-            translated_contents.append({
-                'index': srt_info['index'],
-                'start_time': srt_info['start_time'],
-                'end_time': srt_info['end_time'],
-                'content': f"{translation_info['translation_text']}\n{srt_info['content']}"
-            })
+        # TODO: results 重排序
+        for result in results:
+            translated_contents.append(result)
 
         translate_result = {
             'type': 'srt',
@@ -65,6 +36,49 @@ def translate(subtitle_file: str):
         }
 
     return translate_result
+
+
+def do_translate(srt_info: dict):
+    target_lang = config.get_config('target_lang')
+    src_lang = config.get_config()['src_lang']
+
+    prompt = f"""
+    You are a Netflix subtitle translator. Please translate the following {src_lang} sentence into {"Simplified Chinese" if target_lang == "Chinese" else target_lang}.
+    Do not provide any additional explanations, improvements, comments, notes or suggestions. Only provide the final translation.
+    Finally return the following json structure exactly:
+    "translations": {{
+        "origin_text": "",
+        "translation_text": ""
+    }}
+    you can put the origin text or any additional messages to the 'origin_text' field within the translation process.
+    The 'translation_text' field just stores the final translation text.
+    And the translation need to be more personality and modernity.
+    """
+    platform = config.get_config('gpt')['platform']
+    api_key = config.get_config('gpt')['apiKey']
+    model = config.get_config('gpt')['model']
+    api = GptFactory(platform).generate_api(model, api_key)
+
+    translated_content: str = api.completions(prompt, srt_info['content'])
+
+    json_pattern = re.compile(r'"translations":.*?({.*?})', re.S)
+    try:
+        json_result = re.search(json_pattern, translated_content)
+        if json_result:
+            translation_info = json.loads(json_result.group(1))
+        else:
+            raise SystemError('Json result is None')
+    except (json.decoder.JSONDecodeError, SystemError) as e:
+        print(f"{os.linesep}Parsing json failed. {json_result}, {e}")
+        # 降级处理
+        translation_info = {'translation_text': "翻译失败"}
+
+    return {
+        'index': srt_info['index'],
+        'start_time': srt_info['start_time'],
+        'end_time': srt_info['end_time'],
+        'content': f"{translation_info['translation_text']}\n{srt_info['content']}"
+    }
 
 
 def save(translate_result, output_dir: str):

@@ -5,6 +5,7 @@ whisper:
   model: turbo
 
 gpt:
-  platform: silicon
-  apiKey: sk-ifqgbillqopxohkxtbbqjochkgkjqvxplrdtzddzmvhbzfzo
-  model: Qwen/Qwen2.5-72B-Instruct
+  # silicon, deepseek, openai, ollama
+  platform:
+  apiKey:
+  model:

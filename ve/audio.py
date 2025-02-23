@@ -9,6 +9,7 @@ from tqdm import tqdm
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from ve.common import config
 
+
 def transform_to_text(audio_file: str, output_dir: str):
     lang = config.get_config()['src_lang']
     model = config.get_config('whisper')['model']
@@ -22,13 +23,14 @@ def transform_to_text(audio_file: str, output_dir: str):
     print(f"Executing whisper command: whisper {audio_file} --language {lang} --model {model} -f srt -o {output_dir}")
 
     try:
-        with tqdm(desc="Audio Transforming", total=len(au.from_wav(audio_file)) // 1000, ncols=100, file=sys.stdout) as tbar:
-            process = subprocess.Popen(["whisper", audio_file, "--language", lang, "--model", model, "-o", output_dir],
-                                     text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        with tqdm(desc="Audio Transforming", total=len(au.from_wav(audio_file)) // 1000, dynamic_ncols=True,
+                  file=sys.stdout) as tbar:
+            process = subprocess.Popen(
+                ["whisper", audio_file, "--language", lang, "--model", model, "-f", "srt", "-o", output_dir],
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
             pre_second = 0
             for line in process.stdout:
-
                 current_end_time = line.split(']')[0].split('-->')[1].strip()
 
                 current = datetime.strptime(current_end_time, '%M:%S.%f')
@@ -43,15 +45,14 @@ def transform_to_text(audio_file: str, output_dir: str):
 
         audio_file_name = os.path.basename(audio_file).split(".")[0]
         return {
-            "srt": os.path.join(output_dir, audio_file_name + ".srt"),
-            "txt": os.path.join(output_dir, audio_file_name + ".txt"),
-            "vtt": os.path.join(output_dir, audio_file_name + ".vtt"),
-            "tsv": os.path.join(output_dir, audio_file_name + ".tsv"),
-            "json": os.path.join(output_dir, audio_file_name + ".json")
+            "srt": os.path.join(output_dir, audio_file_name + ".srt")
         }
     except subprocess.CalledProcessError as e:
         print(f"Transforming audio to text failed: {e}")
 
+
 if __name__ == '__main__':
     from ve.common import constants
-    transform_to_text(os.path.join(constants.ROOT_PATH, 'temp/breakBadHabit.wav'), os.path.join(constants.ROOT_PATH, 'temp'))
+
+    transform_to_text(os.path.join(constants.ROOT_PATH, 'temp/breakBadHabit.wav'),
+                      os.path.join(constants.ROOT_PATH, 'temp'))

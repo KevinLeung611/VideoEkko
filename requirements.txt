@@ -7,3 +7,5 @@ gradio==5.16.2
 socksio==1.0.0
 socks==0
 tqdm==4.67.1
+python-dotenv==0.21.00
+openai==1.60.1
