@@ -31,7 +31,8 @@ class OpenAPI:
             print(f"Request an open api failed: {e}, api url: {self.base_url}")
             raise e
         except json.decoder.JSONDecodeError as e:
-            print(f"Api response decode failed: {e}")
+            print(f"AI Server response failed! Please check the logs.")
+
 
 if __name__ == '__main__':
     from ve.common import config
@@ -44,4 +45,3 @@ if __name__ == '__main__':
 
     api = OpenAPI(model, api_key)
     print(api.completions(system_prompt, user_prompt))
-

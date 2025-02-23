@@ -109,5 +109,5 @@ python engine.py
 * [Gradio](https://www.gradio.app)
 * [whisper](https://github.com/openai/whisper)
 
-## 😏 License
+## License
 VideoEkko is released under the MIT License. See [LICENSE](./LICENSE) for further details.
