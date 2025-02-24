@@ -1,45 +1,55 @@
+import logging
 import os
 import subprocess
 import sys
 from datetime import datetime
 
 from pydub import AudioSegment as au
+from rich.console import Console
 from tqdm import tqdm
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from ve.common import config
+from ve.error import VideoEkkoError
 
+logger = logging.getLogger(__name__)
+console = Console()
 
 def transform_to_text(audio_file: str, output_dir: str):
+    logger.info(f"Start to transform audio to text, params: {[audio_file, output_dir]}")
     lang = config.get_config()['src_lang']
     model = config.get_config('whisper')['model']
 
     if not lang:
-        raise SystemExit("Language not specified in config.yaml")
+        raise VideoEkkoError("Language not specified in config.yaml")
 
     if not model:
-        raise SystemExit("Model not specified in config.yaml")
-
-    print(f"Executing whisper command: whisper {audio_file} --language {lang} --model {model} -f srt -o {output_dir}")
+        raise VideoEkkoError("Model not specified in config.yaml")
 
     try:
+        logger.info(f"Executing whisper command: whisper {audio_file} --language {lang} --model {model} -f srt -o {output_dir}")
+
         with tqdm(desc="Audio Transforming", total=len(au.from_wav(audio_file)) // 1000, dynamic_ncols=True,
                   file=sys.stdout) as tbar:
-            process = subprocess.Popen(
-                ["whisper", audio_file, "--language", lang, "--model", model, "-f", "srt", "-o", output_dir],
-                stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+            cmd = ["whisper", audio_file,
+                   "--language", lang,
+                   "--model", model,
+                   "-f", "srt",
+                   "-o", output_dir]
+            process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
             pre_second = 0
             for line in process.stdout:
                 current_end_time = line.split(']')[0].split('-->')[1].strip()
-
                 current = datetime.strptime(current_end_time, '%M:%S.%f')
-
                 tbar.update(current.minute * 60 + current.second - pre_second)
-
                 pre_second = current.minute * 60 + current.second
 
             process.wait()
+            if process.returncode != 0:
+                raise subprocess.CalledProcessError(process.returncode, cmd)
+
             tbar.total = pre_second
             tbar.refresh()
 
@@ -48,7 +58,9 @@ def transform_to_text(audio_file: str, output_dir: str):
             "srt": os.path.join(output_dir, audio_file_name + ".srt")
         }
     except subprocess.CalledProcessError as e:
-        print(f"Transforming audio to text failed: {e}")
+        logger.exception(f"Transforming audio to text failed. audio file: {audio_file}")
+        console.print("Transforming audio to text failed. Please check logs.")
+        raise e
 
 
 if __name__ == '__main__':

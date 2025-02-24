@@ -2,6 +2,10 @@ import gradio as gr
 
 import engine as ve_engine
 from ve.common import config
+from ve.error import VideoEkkoError
+import logging
+
+logger = logging.getLogger(__name__)
 
 _DEFAULT_PLATFORM = 'silicon'
 
@@ -62,6 +66,8 @@ def gpt_platform_change(value):
 
 def generate_video(gpt_platform, gpt_model, api_key, whisper_model, video_lang, translate_lang, video_path):
     try:
+        logger.info(f"Invoking generate video api. params: {[gpt_platform, gpt_model, api_key, whisper_model, video_lang, translate_lang, video_path]}")
+
         if not api_key:
             raise gr.Error("It's require an api key. please check.")
 
@@ -74,12 +80,12 @@ def generate_video(gpt_platform, gpt_model, api_key, whisper_model, video_lang, 
 
         video_paths = ve_engine.generate_videos(video_path)
         if len(video_paths) == 0:
-            raise RuntimeError("No video generated")
+            raise VideoEkkoError("No video generated")
 
         return video_paths[0]
-    except Exception as e:
-        print(e)
-        raise gr.Error(e)
+    except Exception:
+        logger.exception("Invoke generate video api failed.")
+        raise gr.Error("Invoke generate video api failed.")
 
 
 def show_interface(demo: gr.Blocks):

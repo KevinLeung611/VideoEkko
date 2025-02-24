@@ -1,7 +1,9 @@
 import json.decoder
+import logging
 
 import openai
 
+logger = logging.getLogger(__name__)
 
 class OpenAPI:
 
@@ -11,28 +13,21 @@ class OpenAPI:
         self.api_key = api_key
 
     def completions(self, system_prompt: str, user_prompt: str):
-        try:
-            api_key = self.api_key
-            model = self.model
-            client = openai.OpenAI(api_key=api_key, base_url=self.base_url)
-            messages = [
-                {
-                    "role": "system",
-                    "content": system_prompt,
-                },
-                {
-                    "role": "user",
-                    "content": user_prompt
-                }
-            ]
-            response = client.chat.completions.create(model=model, stream=False, messages=messages)
-            return response.choices[0].message.content
-        except openai.OpenAIError as e:
-            print(f"Request an open api failed: {e}, api url: {self.base_url}")
-            raise e
-        except json.decoder.JSONDecodeError as e:
-            print(f"AI Server response failed! Please check the logs.")
-            raise e
+        api_key = self.api_key
+        model = self.model
+        client = openai.OpenAI(api_key=api_key, base_url=self.base_url)
+        messages = [
+            {
+                "role": "system",
+                "content": system_prompt,
+            },
+            {
+                "role": "user",
+                "content": user_prompt
+            }
+        ]
+        response = client.chat.completions.create(model=model, stream=False, messages=messages)
+        return response.choices[0].message.content
 
 
 if __name__ == '__main__':

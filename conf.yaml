@@ -2,7 +2,7 @@ src_lang: English
 target_lang: Chinese
 
 whisper:
-  model: turbo
+  model: tiny
 
 gpt:
   # silicon, deepseek, openai, ollama
