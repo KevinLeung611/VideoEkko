@@ -11,8 +11,6 @@ def retrieve_videos(video_path: str = None):
 
     video_files = [file for file in files if file.split('.')[1] in _VIDEO_SUFFIX]
 
-    print(f"Parsing video files: {video_files}")
-
     result = []
     for video_file in video_files:
         suffix = video_file.split('.')[1]

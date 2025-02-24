@@ -21,10 +21,8 @@ def generate_videos(video_path: str = None):
 
     output_videos = []
     for video_file in video_files:
-        print(f"Processing video: {video_file}")
-
         # Get audio from video
-        print("😄 Start to extract audio from video...")
+        print(f"😄 Start to extract audio from video [{video_file['path']}]")
         audio_path = video.extract_audio(video_file['path'], os.path.join(_TEMP_PATH, video_file['name']))
 
         # Convert audio to text
