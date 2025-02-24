@@ -74,7 +74,7 @@ def do_translate(srt_info: dict):
     model = config.get_config('gpt')['model']
     api = GptFactory(platform).generate_api(model, api_key)
 
-    degrade_result = {'translation_text': "翻译失败"}  # 降级结果
+    downgrade_result = {'translation_text': "翻译失败"}  # 降级结果
     try:
         translated_content: str = api.completions(prompt, srt_info['content'])
         if not translated_content:
@@ -83,10 +83,10 @@ def do_translate(srt_info: dict):
         json_pattern = re.compile(r'"translations":.*?({.*?})', re.S)
         json_result = re.search(json_pattern, translated_content)
 
-        translation_info = json.loads(json_result.group(1)) if json_result else degrade_result
+        translation_info = json.loads(json_result.group(1)) if json_result else downgrade_result
     except Exception:
         logger.exception("Invoke open api failed.")
-        translation_info = degrade_result
+        translation_info = downgrade_result
 
     return {
         'index': srt_info['index'],
