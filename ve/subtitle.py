@@ -1,48 +1,58 @@
-import json
+import logging
 import os
 import re
 import sys
-from concurrent.futures import ThreadPoolExecutor
+import json
 
+from rich.console import Console
 from tqdm.contrib.concurrent import thread_map
+
+from ve.error.VideoEkkoError import VideoEkkoError
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from ve import parse
 from ve.common import config
 from ve.gpt.gpt_factory import GptFactory
 
-thread_pool = ThreadPoolExecutor(thread_name_prefix="TranslatingPool")
-
+logger = logging.getLogger(__name__)
+console = Console()
 
 def translate(subtitle_file: str):
+    logger.info(f"Start to translate the subtitle file, params: {[subtitle_file]}")
+
     file_name = os.path.basename(subtitle_file).split(".")[0]
     suffix_name = os.path.basename(subtitle_file).split(".")[1]
     platform = config.get_config('gpt')['platform']
 
     translate_result = {}
-    if suffix_name == "srt":
-        srt_infos = parse.parse_srt_file(subtitle_file)
+    try:
+        if suffix_name == "srt":
+            srt_infos = parse.parse_srt_file(subtitle_file)
 
-        max_workers = os.cpu_count() + 2
-        # 如果是deepseek降低为4条线程，因为deepseek服务器容易超负载，返回错误数据
-        if platform == 'deepseek':
-            max_workers = 4
+            max_workers = os.cpu_count() + 2
+            # 如果是deepseek降低为1条线程，因为deepseek服务器容易超负载，返回错误数据
+            if platform == 'deepseek':
+                max_workers = 1
 
-        results = thread_map(do_translate, srt_infos, max_workers=max_workers, desc="Translating subtitle", dynamic_ncols=True, file=sys.stdout)
+            results = thread_map(do_translate, srt_infos, max_workers=max_workers, desc="Translating subtitle", dynamic_ncols=True, file=sys.stdout)
 
-        translated_contents = []
-        for result in results:
-            translated_contents.append(result)
+            translated_contents = []
+            for result in results:
+                translated_contents.append(result)
 
-        translated_contents = sorted(translated_contents, key=lambda x:x['start_time'])
+            translated_contents = sorted(translated_contents, key=lambda x:x['start_time'])
 
-        translate_result = {
-            'type': 'srt',
-            'name': file_name,
-            'content': translated_contents
-        }
+            translate_result = {
+                'type': 'srt',
+                'name': file_name,
+                'content': translated_contents
+            }
 
-    return translate_result
+        return translate_result
+    except Exception as e:
+        logger.exception("Translation failed.")
+        console.print("Translation failed. Please check logs.")
+        raise e
 
 
 def do_translate(srt_info: dict):
@@ -64,20 +74,19 @@ def do_translate(srt_info: dict):
     model = config.get_config('gpt')['model']
     api = GptFactory(platform).generate_api(model, api_key)
 
+    degrade_result = {'translation_text': "翻译失败"}  # 降级结果
     try:
         translated_content: str = api.completions(prompt, srt_info['content'])
+        if not translated_content:
+            raise VideoEkkoError("Open api return None")
 
         json_pattern = re.compile(r'"translations":.*?({.*?})', re.S)
         json_result = re.search(json_pattern, translated_content)
 
-        if json_result:
-            translation_info = json.loads(json_result.group(1))
-        else:
-            raise SystemError('Json result is None')
-    except Exception as e:
-        print(f"Unexpected error: {e}")
-        # 降级处理
-        translation_info = {'translation_text': "翻译失败"}
+        translation_info = json.loads(json_result.group(1)) if json_result else degrade_result
+    except Exception:
+        logger.exception("Invoke open api failed.")
+        translation_info = degrade_result
 
     return {
         'index': srt_info['index'],
