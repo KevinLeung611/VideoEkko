@@ -60,29 +60,30 @@ VideoEkko 依赖 **ffmpeg** 和 **whisper**
 
 ### 一键安装
 ```shell
+# 创建conda虚拟环境
 conda -n videoekko -y python=3.12
+# 激活环境
 conda activate videoekko
+# 启动安装脚本
 python install.py
 ```
 
 ### 手动安装依赖
 1. **安装 [ffmpeg](https://www.ffmpeg.org)** 
 
-Ubuntu/Debian
+
 ```shell
+# Ubuntu/Debian
 sudo apt install -y ffmpeg
-```
 
-CentOS/Fedora
-
-```shell
+# CentOS/Fedora
 sudo yum install -y ffmpeg
-```
 
-MacOS
-
-```shell
+# MacOS
 brew install ffmpeg
+
+# Windows
+choco install ffmpeg
 ```
 
 2. **安装 [whisper](https://github.com/openai/whisper)** 
@@ -102,45 +103,20 @@ pip install -r requirements.txt
 ### WEB 页面
 
 ```shell
+# 启动服务
 python web.py
+
+# 服务启动完成后，浏览器打开：localhost:7860
 ```
-浏览器打开
-> localhost:7860
 
 ### 命令行
 
-**操作步骤** 
-
-1. 将需要操作的视频放进 source 文件夹中
-2. 在 conf.yaml 文件中配置
-
-```yaml
-# 原视频语言: English, Chinese, Japanese 区分大小写
-src_lang: English
-# 生成视频语言: English, Chinese, Japanese 区分大小写
-target_lang: Chinese
-
-gpt:
-  # GPT平台: silicon, deepseek, openai 区分大小写
-  platform: deepseek
-  # API_KEY
-  apiKey: xxxxxx
-  # GPT 模型
-  model: deepseek-chat
-  
-# whisper 配置
-whisper:
-  # tiny, base, small, medium, large, turboe
-  model: turbo
-```
-
-3. 执行 engine.py
-
 ```shell
+# 1. 将需要操作的视频放进 source 文件夹中
+# 2. 配置 conf.yaml
+# 3. 执行处理引擎
 python engine.py
 ```
-
-
 
 ## 🤔 参考
 * [Gradio](https://www.gradio.app)
