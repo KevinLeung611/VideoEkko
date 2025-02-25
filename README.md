@@ -1,4 +1,4 @@
-# 👉🏻 VideoEkko 👈🏻 [开发阶段]
+# 👉🏻 VideoEkko 👈🏻 
 
 [![SVG Banners](https://svg-banners.vercel.app/api?type=luminance&text1=VideoEkko%20📹&width=800&height=300)](https://github.com/Akshay090/svg-banners)
 
