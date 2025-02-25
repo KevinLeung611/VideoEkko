@@ -13,7 +13,6 @@ _PLATFOM_MODEL_MAP = {
     "silicon": [
         "Pro/deepseek-ai/DeepSeek-V3",
         "Pro/deepseek-ai/DeepSeek-R1",
-        "Qwen/Qwen2.5-72B-Instruct",
         "Qwen/Qwen2.5-72B-Instruct-128K",
         "meta-llama/Llama-3.3-70B-Instruct",
     ],
@@ -23,13 +22,8 @@ _PLATFOM_MODEL_MAP = {
     ],
     "openai": [
         "gpt-4o"
-    ],
-    "ollama": [
-        "llama3.2"
     ]
 }
-
-_WHISPER_MODEL = ["tiny", "base", "small", "medium", "large", "turbo"]
 
 _LANG_MAP = {
     "中文": "Chinese",
@@ -39,10 +33,6 @@ _LANG_MAP = {
 
 
 def page_load():
-    whisper_config = config.get_config('whisper')
-    if whisper_config:
-        whisper_model = 'turbo' if not whisper_config['model'] else whisper_config['model']
-
     gpt_config = config.get_config('gpt')
     if gpt_config:
         platform = _DEFAULT_PLATFORM if not gpt_config['platform'] else gpt_config['platform']
@@ -56,7 +46,7 @@ def page_load():
     for k, v in _LANG_MAP.items():
         reverse_lang_map[v] = k
 
-    return [platform, gpt_model, api_key, whisper_model, reverse_lang_map[video_lang],
+    return [platform, gpt_model, api_key, reverse_lang_map[video_lang],
             reverse_lang_map[translated_lang]]
 
 
@@ -64,9 +54,9 @@ def gpt_platform_change(value):
     return gr.Dropdown(choices=_PLATFOM_MODEL_MAP[value], value=_PLATFOM_MODEL_MAP[value][0])
 
 
-def generate_video(gpt_platform, gpt_model, api_key, whisper_model, video_lang, translate_lang, video_path):
+def generate_video(gpt_platform, gpt_model, api_key, video_lang, translate_lang, video_path):
     try:
-        logger.info(f"Invoking generate video api. params: {[gpt_platform, gpt_model, api_key, whisper_model, video_lang, translate_lang, video_path]}")
+        logger.info(f"Invoking generate video api. params: {[gpt_platform, gpt_model, api_key, video_lang, translate_lang, video_path]}")
 
         if not api_key:
             raise gr.Error("It's require an api key. please check.")
@@ -74,7 +64,6 @@ def generate_video(gpt_platform, gpt_model, api_key, whisper_model, video_lang, 
         config.get_config('gpt')['platform'] = gpt_platform
         config.get_config('gpt')['model'] = gpt_model
         config.get_config('gpt')['apiKey'] = api_key
-        config.get_config('whisper')['model'] = whisper_model
         config.get_config()['src_lang'] = _LANG_MAP[video_lang]
         config.get_config()['target_lang'] = _LANG_MAP[translate_lang]
 
@@ -107,9 +96,6 @@ def show_interface(demo: gr.Blocks):
             api_key = gr.Text(label="API_KEY", placeholder="请输入对应的API_KEY", lines=1)
 
         with gr.Row():
-            whisper_model = gr.Dropdown(_WHISPER_MODEL, label="语音识别模型", allow_custom_value=False)
-
-        with gr.Row():
             video_lang = gr.Dropdown(list(_LANG_MAP.keys()), label="原视频语言", allow_custom_value=False)
 
         with gr.Row():
@@ -118,22 +104,49 @@ def show_interface(demo: gr.Blocks):
         gpt_platform.change(gpt_platform_change, inputs=gpt_platform, outputs=gpt_model)
 
     with gr.Row():
-        with gr.Column(scale=1):
-            pass
-        with gr.Column(scale=2):
+        with gr.Column():
+            gr.Markdown(
+                """
+                ### 配置说明
+                - GPT平台：目前支持[silicon](https://siliconflow.cn/zh-cn/), [deepseek](https://www.deepseek.com), [openai](https://openai.com)
+                - GPT模型：选择对应平台支持的大模型
+                - API_KEY: 在对应的GPT平台创建好之后，配置到这里
+                - 原视频语言：目前支持中文,英文,日语
+                - 生成视频语言：目前支持中文,英文,日语
+                    - 如果是生成中文的视频，尽量使用国内的大模型
+                """
+            )
+        with gr.Column():
+            gr.Markdown(
+                """
+                ### 操作步骤
+                1. 在侧边栏配置相关参数，参考配置说明
+                2. 上传需要翻译的视频
+                3. 点击翻译按钮
+                4. 等待翻译视频生成
+                """
+            )
+    with gr.Row():
+        gr.Markdown(
+            """
+            ---
+            **友情提示:**
+            1. deepseek服务器不稳定，如果使用deepseek平台，生成时间会比较长且容易出错，建议使用 silicon
+            """
+        )
+    with gr.Row():
+        with gr.Column():
             input_video = gr.PlayableVideo(sources="upload", label="上传视频")
             trans_btn = gr.Button("翻译", variant="primary")
             output_video = gr.PlayableVideo(label="生成视频")
 
             trans_btn.click(generate_video,
-                            inputs=[gpt_platform, gpt_model, api_key, whisper_model, video_lang, translate_lang,
+                            inputs=[gpt_platform, gpt_model, api_key, video_lang, translate_lang,
                                     input_video],
                             outputs=output_video)
-        with gr.Column(scale=1):
-            pass
 
     # Page loaded config
-    demo.load(fn=page_load, outputs=[gpt_platform, gpt_model, api_key, whisper_model, video_lang, translate_lang])
+    demo.load(fn=page_load, outputs=[gpt_platform, gpt_model, api_key, video_lang, translate_lang])
 
 
 with gr.Blocks(theme=gr.themes.Soft(), title="VideoEkko", css="footer {visibility: hidden}") as demo:
