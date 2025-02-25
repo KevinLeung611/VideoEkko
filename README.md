@@ -10,19 +10,21 @@ VideoEkko — 快速为您的视频添加翻译字幕
 * 一键安装与部署，免去繁琐步骤
 * 兼容多种 GPT 集成平台
 
-## Demo
+## 👀 Demo
 <table>
 <tr>
 <td width="50%">
 
 ### 原视频
 ---
+https://github.com/user-attachments/assets/6eeb80dc-d85c-4d33-822c-4dda14a9d58f
 
 </td>
 <td width="50%">
 
 ### 生成视频
 ---
+https://github.com/user-attachments/assets/d6c4e463-d719-41b1-bb61-c05e51009172
 
 </td>
 </tr>
