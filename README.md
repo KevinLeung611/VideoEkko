@@ -10,13 +10,24 @@ VideoEkko — 快速为您的视频添加翻译字幕
 * 一键安装与部署，免去繁琐步骤
 * 兼容多种 GPT 集成平台
 
+## Demo
+**原视频** 
+
+<video width="320" height="240" controls style="display:inline-block;">
+  <source src="asset/origin-demo.mp4" type="video/mp4">
+  您的浏览器不支持视频标签。
+</video>
+
+**生成视频** 
+
+<video width="320" height="240" controls style="display:inline-block;">
+  <source src="asset/generate-demo.mp4" type="video/mp4">
+  您的浏览器不支持视频标签。
+</video>
+
 ## 💁🏻 操作界面
 
 <img src="asset/web-demo.png" alt="web-demo" style="zoom: 20%;" /><img src="asset/cli-demo.png" alt="cli-demo" style="zoom:25%;" />
-
-## 👏🏻 性能展示
-
-pass
 
 ## 🥳 安装方法
 VideoEkko 依赖 **ffmpeg** 和 **whisper**
@@ -60,7 +71,7 @@ pip install -U openai-whisper
 pip install -r requirements.txt
 ```
 
-## 使用方法
+## 🛠️ 使用方法
 
 ### WEB 页面
 
@@ -83,18 +94,18 @@ src_lang: English
 # 生成视频语言: English, Chinese, Japanese 区分大小写
 target_lang: Chinese
 
-# whisper 配置
-whisper:
-  # tiny, base, small, medium, large, turboe
-  model: turbo
-
 gpt:
-  # GPT平台: silicon, deepseek, openai, ollama 区分大小写
+  # GPT平台: silicon, deepseek, openai 区分大小写
   platform: deepseek
   # API_KEY
   apiKey: xxxxxx
   # GPT 模型
   model: deepseek-chat
+  
+# whisper 配置
+whisper:
+  # tiny, base, small, medium, large, turboe
+  model: turbo
 ```
 
 3. 执行 engine.py
