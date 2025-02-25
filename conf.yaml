@@ -1,11 +1,10 @@
-src_lang: English
-target_lang: Chinese
-
-whisper:
-  model: tiny
+src_lang:
+target_lang:
 
 gpt:
-  # silicon, deepseek, openai, ollama
   platform:
   apiKey:
   model:
+
+whisper:
+  model: tiny
