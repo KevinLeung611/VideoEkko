@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 # Load Environment Variables
 load_dotenv()
 import time
-import logging
 from rich.console import Console
 from rich.markdown import Markdown
 
@@ -15,8 +14,12 @@ from ve import subtitle
 from ve import video
 from ve.common import constants
 
-logging.basicConfig(level=logging.INFO, filename="logs/videoekko.log", filemode="w", encoding="utf-8",
+import logging
+
+logging.basicConfig(level=logging.INFO, filename="logs/videoekko.log", filemode="a", encoding="utf-8",
                     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+
+logger = logging.getLogger(__name__)
 
 _SOURCE_PATH = os.path.join(constants.ROOT_PATH, 'source')
 _OUTPUT_PATH = os.path.join(constants.ROOT_PATH, 'output')
@@ -25,7 +28,7 @@ _TEMP_PATH = os.path.join(constants.ROOT_PATH, 'temp')
 console = Console()
 
 def generate_videos(video_path: str = None):
-    logging.info(f"VideoEkko engine start. generating videos from: {video_path}")
+    logger.info(f"VideoEkko engine start. generating videos from: {video_path}")
     start_time = time.time()
 
     video_files = parse.retrieve_videos(os.path.dirname(video_path)) if video_path else parse.retrieve_videos(_SOURCE_PATH)
@@ -52,7 +55,7 @@ def generate_videos(video_path: str = None):
 
             output_videos.append(os.path.join(_OUTPUT_PATH, video_file['fullname']))
         except Exception as e:
-            logging.exception(f"Generating video failed. the video file is: {video_file}")
+            logger.exception(f"Generating video failed. the video file is: {video_file}")
             raise e
 
     end_time = time.time()

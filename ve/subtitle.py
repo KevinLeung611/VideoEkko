@@ -59,6 +59,10 @@ def do_translate(srt_info: dict):
     target_lang = config.get_config('target_lang')
     src_lang = config.get_config()['src_lang']
 
+    # The same language not need to be translated. Just return the original data.
+    if src_lang == target_lang:
+        return srt_info
+
     prompt = f"""
     You are a Netflix subtitle translator. Please translate the following {src_lang} sentence into {"Simplified Chinese" if target_lang == "Chinese" else target_lang}.
     Do not provide any additional explanations, improvements, comments, notes or suggestions. Only provide the final translation.
