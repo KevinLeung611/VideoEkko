@@ -20,6 +20,11 @@ def transform_to_text(audio_file: str, output_dir: str):
     lang = config.get_config()['src_lang']
     model = config.get_config('whisper')['model']
 
+    whisper_model = config.get_config('whisper')['model']
+    if config.get_config()['src_lang'] != 'English':
+        if whisper_model not in ['large', 'turbo']:
+            model = 'turbo'
+
     if not lang:
         raise VideoEkkoError("Language not specified in config.yaml")
 

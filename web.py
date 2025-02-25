@@ -1,5 +1,4 @@
 import gradio as gr
-
 import engine as ve_engine
 from ve.common import config
 from ve.error import VideoEkkoError
@@ -14,7 +13,7 @@ _PLATFOM_MODEL_MAP = {
         "Pro/deepseek-ai/DeepSeek-V3",
         "Pro/deepseek-ai/DeepSeek-R1",
         "Qwen/Qwen2.5-72B-Instruct-128K",
-        "meta-llama/Llama-3.3-70B-Instruct",
+        "meta-llama/Llama-3.3-70B-Instruct"
     ],
     "deepseek": [
         "deepseek-chat",
@@ -55,12 +54,13 @@ def gpt_platform_change(value):
 
 
 def generate_video(gpt_platform, gpt_model, api_key, video_lang, translate_lang, video_path):
+    logger.info(f"Invoking generate video api. params:"
+                f"{[gpt_platform, gpt_model, api_key, video_lang, translate_lang, video_path]}")
+
+    if not api_key:
+        raise gr.Error("It's require an api key. please check.")
+
     try:
-        logger.info(f"Invoking generate video api. params: {[gpt_platform, gpt_model, api_key, video_lang, translate_lang, video_path]}")
-
-        if not api_key:
-            raise gr.Error("It's require an api key. please check.")
-
         config.get_config('gpt')['platform'] = gpt_platform
         config.get_config('gpt')['model'] = gpt_model
         config.get_config('gpt')['apiKey'] = api_key
@@ -149,6 +149,11 @@ def show_interface(demo: gr.Blocks):
     demo.load(fn=page_load, outputs=[gpt_platform, gpt_model, api_key, video_lang, translate_lang])
 
 
-with gr.Blocks(theme=gr.themes.Soft(), title="VideoEkko", css="footer {visibility: hidden}") as demo:
-    show_interface(demo)
-demo.launch(server_name="0.0.0.0", server_port=7860, share=False)
+def main():
+    with gr.Blocks(theme=gr.themes.Soft(), title="VideoEkko", css="footer {visibility: hidden}") as demo:
+        show_interface(demo)
+    demo.launch(server_name="0.0.0.0", server_port=7860, share=False, debug=True)
+
+
+if __name__ == '__main__':
+    main()
