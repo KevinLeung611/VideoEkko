@@ -11,16 +11,17 @@ VideoEkko — 快速为您的视频添加翻译字幕
 * 兼容多种 GPT 集成平台
 
 ## 👀 Demo
+
 <table>
 <tr>
-<td width="50%">
+<td>
 
 ### 原视频
 ---
 https://github.com/user-attachments/assets/6eeb80dc-d85c-4d33-822c-4dda14a9d58f
 
 </td>
-<td width="50%">
+<td>
 
 ### 生成视频
 ---
@@ -34,7 +35,25 @@ https://github.com/user-attachments/assets/d6c4e463-d719-41b1-bb61-c05e51009172
 
 ## 💁🏻 操作界面
 
-<img src="asset/web-demo.png" alt="web-demo" style="zoom: 20%;" /><img src="asset/cli-demo.png" alt="cli-demo" style="zoom:25%;" />
+<table>
+<tr>
+<td>
+
+### Web
+---
+
+<img src="asset/web-demo.png" alt="web-demo"/>
+</td>
+
+<td>
+
+### Command
+---
+
+<img src="asset/cli-demo.png" alt="cli-demo"/>
+</td>
+</tr>
+</table>
 
 ## 🥳 安装方法
 VideoEkko 依赖 **ffmpeg** 和 **whisper**
