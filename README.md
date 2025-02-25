@@ -18,7 +18,7 @@ VideoEkko — 快速为您的视频添加翻译字幕
 
 ### 原视频
 ---
-https://github.com/user-attachments/assets/6eeb80dc-d85c-4d33-822c-4dda14a9d58f
+https://github.com/user-attachments/assets/877c5575-2cc1-482f-82a5-c33f4f576ea2
 
 </td>
 <td>
