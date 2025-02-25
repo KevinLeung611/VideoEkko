@@ -37,20 +37,20 @@ https://github.com/user-attachments/assets/d6c4e463-d719-41b1-bb61-c05e51009172
 
 <table>
 <tr>
-<td>
+<td width="50%">
 
 ### Web
 ---
 
-<img src="asset/web-demo.png" alt="web-demo"/>
+<img src="asset/web-demo.png" alt="web-demo" width="480" height="280"/>
 </td>
 
-<td>
+<td width="50%">
 
 ### Command
 ---
 
-<img src="asset/cli-demo.png" alt="cli-demo"/>
+<img src="asset/cli-demo.png" alt="cli-demo" width="480" height="280"/>
 </td>
 </tr>
 </table>
