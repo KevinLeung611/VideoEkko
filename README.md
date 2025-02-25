@@ -11,19 +11,24 @@ VideoEkko — 快速为您的视频添加翻译字幕
 * 兼容多种 GPT 集成平台
 
 ## Demo
-**原视频** 
+<table>
+<tr>
+<td width="50%">
 
-<video width="320" height="240" controls style="display:inline-block;">
-  <source src="asset/origin-demo.mp4" type="video/mp4">
-  您的浏览器不支持视频标签。
-</video>
+### 原视频
+---
 
-**生成视频** 
+</td>
+<td width="50%">
 
-<video width="320" height="240" controls style="display:inline-block;">
-  <source src="asset/generate-demo.mp4" type="video/mp4">
-  您的浏览器不支持视频标签。
-</video>
+### 生成视频
+---
+
+</td>
+</tr>
+</table>
+
+
 
 ## 💁🏻 操作界面
 
