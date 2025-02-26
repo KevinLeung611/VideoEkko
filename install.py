@@ -148,9 +148,9 @@ def install_fonts():
         install_cmd = ['brew', 'install', '--cask', 'font-noto-sans-cjk']
     elif system == 'Windows':
         pass
-    elif distro.name == 'Ubuntu' or distro.name == 'Debian':
+    elif distro.name() == 'Ubuntu' or distro.name() == 'Debian':
         install_cmd = ['sudo', 'apt', 'install', '-y', 'fonts-noto-cjk']
-    elif distro.name == 'CentOS' or distro.name == 'Fedora':
+    elif distro.name() == 'CentOS' or distro.name() == 'Fedora':
         install_cmd = ['sudo', 'yum', 'install', '-y', 'google-noto-cjk-fonts']
     else:
         console.print('Unrecognized OS. Please install Noto Sans CJK fonts manually. https://fonts.google.com', style="bold red")
