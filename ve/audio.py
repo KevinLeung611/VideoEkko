@@ -2,6 +2,7 @@ import logging
 import os
 import subprocess
 import sys
+import torch
 from datetime import datetime
 
 from pydub import AudioSegment as au
@@ -32,16 +33,20 @@ def transform_to_text(audio_file: str, output_dir: str):
         raise VideoEkkoError("Model not specified in config.yaml")
 
     try:
-        logger.info(f"Executing whisper command: whisper {audio_file} --language {lang} --model {model} -f srt -o {output_dir}")
-
         with tqdm(desc="Audio Transforming", total=len(au.from_wav(audio_file)) // 1000, dynamic_ncols=True,
                   file=sys.stdout) as tbar:
+
+            device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
             cmd = ["whisper", audio_file,
                    "--language", lang,
                    "--model", model,
+                   "--device", device,
                    "-f", "srt",
                    "-o", output_dir]
+
+            logger.info('Execute whisper command: %s', ' '.join(cmd))
+
             process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
             pre_second = 0

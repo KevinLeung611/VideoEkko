@@ -1,5 +1,4 @@
-import os.path
-
+import os
 from dotenv import load_dotenv
 
 # Load Environment Variables
@@ -27,11 +26,18 @@ _TEMP_PATH = os.path.join(constants.ROOT_PATH, 'temp')
 
 console = Console()
 
-def generate_videos(video_path: str = None):
-    logger.info(f"VideoEkko engine start. generating videos from: {video_path}")
+def generate_videos(input: str = None):
+    logger.info(f"VideoEkko engine start. generating videos from: {input}")
     start_time = time.time()
 
-    video_files = parse.retrieve_videos(os.path.dirname(video_path)) if video_path else parse.retrieve_videos(_SOURCE_PATH)
+    video_path = _SOURCE_PATH
+    if input:
+        if os.path.isfile(input):
+            video_path = os.path.dirname(input)
+        else:
+            video_path = input
+
+    video_files = parse.retrieve_videos(video_path)
 
     output_videos = []
     for video_file in video_files:

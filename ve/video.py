@@ -42,7 +42,7 @@ def merge_subtitle(video_file: str, subtitle_file: str, output_file: str):
             cmd = ["ffmpeg",
                    "-i", video_file,
                    "-vf",
-                   f"subtitles={subtitle_file}:force_style='FontName=Yuanti SC,FontSize=12,PrimaryColour=&HFFFFFF,Outline=1,OutlineColour=&H000000'",
+                   f"subtitles={subtitle_file}:force_style='FontName=Noto Sans CJK,FontSize=16,PrimaryColour=&HFFFFFF,Outline=1,OutlineColour=&H000000'",
                    "-c:a",
                    "copy",
                    output_file,
@@ -63,5 +63,6 @@ if __name__ == '__main__':
     import os
     from ve.common import constants
 
-    extract_audio(os.path.join(constants.ROOT_PATH, 'source/breakBadHabit.mp4'),
-                  os.path.join(constants.ROOT_PATH, 'temp/breakBadHabit'))
+    merge_subtitle(os.path.join(constants.ROOT_PATH, 'source/breakBadHabit.mp4'),
+                   os.path.join(constants.ROOT_PATH, 'temp/breakBadHabit-translated.srt',),
+                   os.path.join(constants.ROOT_PATH, 'output/breakBadHabit.mp4'))
