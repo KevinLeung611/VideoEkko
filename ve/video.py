@@ -38,11 +38,14 @@ def merge_subtitle(video_file: str, subtitle_file: str, output_file: str):
     try:
         logger.info(f"Start to merge subtitle into video, params: {[video_file, subtitle_file, output_file]}")
 
+        # Match fonts crossing platfrom
+        fonts = get_font_from_os()
+
         with tqdm(desc="Merging subtitle", total=1, dynamic_ncols=True, file=sys.stdout) as pbar:
             cmd = ["ffmpeg",
                    "-i", video_file,
                    "-vf",
-                   f"subtitles={subtitle_file}:force_style='FontName=Noto Sans CJK,FontSize=16,PrimaryColour=&HFFFFFF,Outline=1,OutlineColour=&H000000'",
+                   f"subtitles={subtitle_file}:force_style='FontName={fonts['font_name']},FontSize={fonts['size']},PrimaryColour=&HFFFFFF,Outline=1,OutlineColour=&H000000'",
                    "-c:a",
                    "copy",
                    output_file,
@@ -57,6 +60,16 @@ def merge_subtitle(video_file: str, subtitle_file: str, output_file: str):
         logger.exception("Merging subttile failed.")
         console.print(f"Merging subtitle failed: Please check logs.")
         raise e
+
+def get_font_from_os():
+    import distro
+    os_name = distro.name()
+    if os_name == 'Darwin':
+        return {'font_name': 'Yuanti SC', 'size': 12}
+    elif os_name == 'Windows':
+        return {'font_name': 'Microsoft Yahei', 'size': 14}
+    else:
+        return {'font_name': 'Noto Sans CJK', 'size': 16}
 
 
 if __name__ == '__main__':
