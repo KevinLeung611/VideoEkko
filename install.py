@@ -101,9 +101,9 @@ def check_ffmpeg():
 def install_ffmpeg():
     install_cmd = []
     os_name = distro.name()
-    if system == "Windows":
+    if os_name == "Windows":
         install_cmd = ["choco", "install", "-y", "ffmpeg"]
-    elif system == "Darwin":
+    elif os_name == "Darwin":
         install_cmd = ["brew", "install", "ffmpeg"]
     elif os_name == 'Ubuntu' or os_name == 'Debian':
         install_cmd = ['sudo', 'apt', 'install', '-y', 'ffmpeg']
@@ -143,12 +143,13 @@ def install_ffmpeg():
 
 
 def install_fonts():
+    # Not Linux system skip
+    if system is not 'Linux':
+        return
+
     install_cmd = []
-    if system == 'Darwin':
-        install_cmd = ['brew', 'install', '--cask', 'font-noto-sans-cjk']
-    elif system == 'Windows':
-        pass
-    elif distro.name() == 'Ubuntu' or distro.name() == 'Debian':
+
+    if distro.name() == 'Ubuntu' or distro.name() == 'Debian':
         install_cmd = ['sudo', 'apt', 'install', '-y', 'fonts-noto-cjk']
     elif distro.name() == 'CentOS' or distro.name() == 'Fedora':
         install_cmd = ['sudo', 'yum', 'install', '-y', 'google-noto-cjk-fonts']
@@ -160,9 +161,8 @@ def install_fonts():
     with console.status("Installing fonts..."):
         process = subprocess.Popen(install_cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
-        if system == 'Linux':
-            process.stdin.write(password + '\n')
-            process.stdin.flush()
+        process.stdin.write(password + '\n')
+        process.stdin.flush()
 
         if process.stdout:
             for line in process.stdout:

@@ -1,6 +1,6 @@
 import json.decoder
 import logging
-
+import time
 import openai
 
 logger = logging.getLogger(__name__)
@@ -26,8 +26,38 @@ class OpenAPI:
                 "content": user_prompt
             }
         ]
-        response = client.chat.completions.create(model=model, stream=False, messages=messages)
-        return response.choices[0].message.content
+
+        i = 0
+        retry_times = 3
+        while i < retry_times:
+            try:
+                response = client.chat.completions.create(model=model, stream=False, messages=messages)
+                return response.choices[0].message.content
+            except (openai.RateLimitError, openai.APIConnectionError, openai.APITimeoutError) as e:
+                logger.exception(f"Rate limit error. url: {self.base_url}, Retry: {i}")
+                time.sleep(3)
+                i += 1
+                continue
+            except openai.APIStatusError as e:
+                if e.status_code >= 500:
+                    logger.exception(f"API connection error. url: {self.base_url}, Retry: {i}")
+                    time.sleep(3)
+                    i += 1
+                    continue
+                else:
+                    break
+            except json.decoder.JSONDecodeError:
+                logger.exception(f"Failed to parse response from OpenAI API. url: {self.base_url}, Retry: {i}")
+                time.sleep(3)
+                i += 1
+                continue
+            except Exception as e:
+                logger.exception(f"OpenAI API Unknown error. url: {self.base_url}")
+                break
+        
+        return None
+                
+            
 
 
 if __name__ == '__main__':
