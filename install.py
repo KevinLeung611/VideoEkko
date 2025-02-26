@@ -79,9 +79,13 @@ def get_ffmpeg_install_cmd():
     elif system == "Linux":
         os_name = distro.name()
         if os_name == 'Ubuntu' or os_name == 'Debian':
-            return ["apt", "-y", "install", "ffmpeg"]
+            console.print(f"> On {os_name}. Execute command: 'sudo apt -y install ffmpeg' to install", style="bold red")
+            console.print("> After installation, please reinstall again. 'python install.py'", style="bold red")
+            raise SystemExit(1)
         elif os_name == 'CentOS' or os_name == 'Fedora':
-            return ["yum", "-y", "install", "ffmpeg"]
+            console.print(f"> On {os_name}. Execute command: 'sudo yum -y install ffmpeg' to install", style="bold red")
+            console.print("> After installation, please reinstall again. 'python install.py'", style="bold red")
+            raise SystemExit(1)
     elif system == "Darwin":
         return ["brew", "install", "ffmpeg"]
     else:
