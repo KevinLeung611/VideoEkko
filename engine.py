@@ -43,20 +43,20 @@ def generate_videos(input: str = None):
     for video_file in video_files:
         try:
             # Get audio from video
-            console.print(Markdown('# 👉🏻 Step1: Extracting audio from video 👈🏻'))
+            console.print(Markdown('# Step1: Extracting audio from video'))
             audio_path = video.extract_audio(video_file['path'], os.path.join(_TEMP_PATH, video_file['name']))
 
             # Convert audio to text
-            console.print(Markdown('# 👉🏻 Step2: Transforming audio to text 👈🏻'))
+            console.print(Markdown('# Step2: Transforming audio to text'))
             text_file_map = audio.transform_to_text(audio_path, _TEMP_PATH)
 
             # Translate text into the corresponding language
-            console.print(Markdown('# 👉🏻 Step3: Translating subtitle file 👈🏻'))
+            console.print(Markdown('# Step3: Translating subtitle file'))
             translated_result = subtitle.translate(text_file_map['srt'])
             translated_file = subtitle.save(translated_result, _TEMP_PATH)
 
             # Write translated text to video
-            console.print(Markdown('# 👉🏻 Step4: Merging subtitle into video 👈🏻'))
+            console.print(Markdown('# Step4: Merging subtitle into video'))
             video.merge_subtitle(video_file['path'], translated_file, os.path.join(_OUTPUT_PATH, video_file['fullname']))
 
             output_videos.append(os.path.join(_OUTPUT_PATH, video_file['fullname']))
@@ -65,7 +65,7 @@ def generate_videos(input: str = None):
             raise e
 
     end_time = time.time()
-    console.print(Markdown('# ✅ Mission Complete! Check the output result'))
+    console.print(Markdown('# Mission Complete! Check the output result'))
     for output in output_videos:
         console.print(output, style="bold green")
     console.print(f"[b]Cost time[/b]: {round(end_time - start_time)}s")

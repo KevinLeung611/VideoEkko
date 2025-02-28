@@ -14,11 +14,12 @@ console = Console()
 def extract_audio(video_file: str, output_file: str):
     try:
         logger.info(f"Start to extract audio from video, params: {[video_file, output_file]}")
-        logger.info(f"Executing command: ffmpeg -i {video_file} -vn -acodec pcm_s16le -ar 44100 -ac 2 {output_file + ".wav"}")
 
         with tqdm(desc="Extracting audio", total=1, dynamic_ncols=True, file=sys.stdout) as pbar:
             cmd = ["ffmpeg", "-i", video_file, "-vn", "-acodec", "pcm_s16le", "-ar", "44100", "-ac", "1",
                    output_file + ".wav", "-y"]
+
+            logger.info(f"Executing command: {' '.join(cmd)}")
 
             process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
