@@ -55,8 +55,8 @@ https://github.com/user-attachments/assets/d6c4e463-d719-41b1-bb61-c05e51009172
 </tr>
 </table>
 
-## 🥳 安装方法
-VideoEkko 依赖 **ffmpeg** 和 **whisper**
+## 🥳 一键安装
+
 
 ### 一键安装
 ```shell
@@ -68,35 +68,7 @@ conda activate videoekko
 python install.py
 ```
 
-### 手动安装依赖
-1. **安装 [ffmpeg](https://www.ffmpeg.org)** 
-
-
-```shell
-# Ubuntu/Debian
-sudo apt install -y ffmpeg
-
-# CentOS/Fedora
-sudo yum install -y ffmpeg
-
-# MacOS
-brew install ffmpeg
-
-# Windows
-choco install ffmpeg
-```
-
-2. **安装 [whisper](https://github.com/openai/whisper)** 
-
-```shell
-pip install -U openai-whisper
-```
-
-3. **安装依赖包** 
-
-```shell
-pip install -r requirements.txt
-```
+*VideoEkko 依赖 **ffmpeg** ，windows 用户如果没有安装 choco，可能需要手动安装 [ffmpeg](http://ffmpeg.org)
 
 ## 🛠️ 使用方法
 
