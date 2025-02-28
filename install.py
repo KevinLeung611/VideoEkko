@@ -144,7 +144,7 @@ def install_ffmpeg():
 
 def install_fonts():
     # Not Linux system skip
-    if system is not 'Linux':
+    if system != 'Linux':
         return
 
     install_cmd = []
