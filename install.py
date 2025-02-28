@@ -6,7 +6,7 @@ from getpass import getpass
 print('Start VideoEkko Installation')
 
 subprocess.run([sys.executable, "-m", "pip", "install", "distro==1.9.0", "rich==13.9.4"],
-               check=True, capture_output=True, text=True)
+                    capture_output=True, text=True)
 
 system = platform.system()
 password = None
