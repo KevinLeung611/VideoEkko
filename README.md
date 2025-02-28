@@ -89,7 +89,7 @@ python web.py
 # 3. 执行处理引擎
 python engine.py
 ```
-
+**engine.py** 完成之后查看output文件夹生成的视频
 ## 🤔 参考
 * [Gradio](https://www.gradio.app)
 * [whisper](https://github.com/openai/whisper)
