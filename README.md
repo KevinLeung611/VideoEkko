@@ -68,7 +68,7 @@ conda activate videoekko
 python install.py
 ```
 
-*VideoEkko 依赖 **ffmpeg** ，windows 用户如果没有安装 choco，可能需要手动安装 [ffmpeg](http://ffmpeg.org)
+*VideoEkko 依赖 **ffmpeg** ，windows 用户如果没有安装 choco，可能需要手动安装 [ffmpeg](http://ffmpeg.org)* 
 
 ## 🛠️ 使用方法
 
