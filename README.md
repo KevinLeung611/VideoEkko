@@ -61,7 +61,7 @@ https://github.com/user-attachments/assets/d6c4e463-d719-41b1-bb61-c05e51009172
 ### 一键安装
 ```shell
 # 创建conda虚拟环境
-conda -n videoekko -y python=3.12
+conda -n videoekko -y python=3.10
 # 激活环境
 conda activate videoekko
 # 启动安装脚本
