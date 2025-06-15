@@ -26,7 +26,7 @@ _TEMP_PATH = os.path.join(constants.ROOT_PATH, 'temp')
 
 console = Console()
 
-def generate_videos(input: str = None):
+def generate_videos(input: str | None = None):
     logger.info(f"VideoEkko engine start. generating videos from: {input}")
     start_time = time.time()
 

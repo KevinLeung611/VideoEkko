@@ -67,7 +67,6 @@ def install_requirements():
 
 
 def check_whisper():
-    console = Console()
     console.print(Markdown("#  Check whisper installation "))
     try:
         subprocess.run([sys.executable, "-m", "pip", "show", "openai-whisper"],
@@ -86,7 +85,6 @@ def install_whisper():
 
 
 def check_ffmpeg():
-    console = Console()
     console.print(Markdown("#  Check ffmpeg installation "))
     try:
         subprocess.run(["ffmpeg", "-version"], capture_output=True, text=True, check=True)

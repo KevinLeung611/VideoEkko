@@ -35,7 +35,7 @@ def extract_audio(video_file: str, output_file: str):
         raise e
 
 
-def merge_subtitle(video_file: str, subtitle_file: str, output_file: str):
+def merge_subtitle(video_file: str, subtitle_file: str | None, output_file: str):
     try:
         logger.info(f"Start to merge subtitle into video, params: {[video_file, subtitle_file, output_file]}")
 
