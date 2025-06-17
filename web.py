@@ -36,7 +36,7 @@ def page_load():
     if gpt_config:
         platform = _DEFAULT_PLATFORM if not gpt_config['platform'] else gpt_config['platform']
         api_key = gpt_config['apiKey']
-        gpt_model = _PLATFOM_MODEL_MAP.get(_DEFAULT_PLATFORM)[0] if not gpt_config['model'] else gpt_config['model']
+        gpt_model = _PLATFOM_MODEL_MAP.get(_DEFAULT_PLATFORM)[0] if not gpt_config['model'] else gpt_config['model'] # type: ignore
 
     video_lang = 'English' if not config.get_config()['src_lang'] else config.get_config()['src_lang']
     translated_lang = 'Chinese' if not config.get_config()['target_lang'] else config.get_config()['target_lang']
@@ -69,7 +69,7 @@ def generate_video(gpt_platform, gpt_model, api_key, video_lang, translate_lang,
 
         video_paths = ve_engine.generate_videos(video_path)
         if len(video_paths) == 0:
-            raise VideoEkkoError("No video generated")
+            raise VideoEkkoError("No video generated") # type: ignore
 
         return video_paths[0]
     except Exception:
@@ -87,7 +87,7 @@ def show_interface(demo: gr.Blocks):
             """
         )
         with gr.Row():
-            gpt_platform = gr.Dropdown(_PLATFOM_MODEL_MAP.keys(), label="GPT平台", allow_custom_value=False)
+            gpt_platform = gr.Dropdown(_PLATFOM_MODEL_MAP.keys(), label="GPT平台", allow_custom_value=False) # type: ignore
 
         with gr.Row():
             gpt_model = gr.Dropdown(_PLATFOM_MODEL_MAP[_DEFAULT_PLATFORM], label="GPT模型", allow_custom_value=False)
@@ -150,7 +150,7 @@ def show_interface(demo: gr.Blocks):
 
 
 def main():
-    with gr.Blocks(theme=gr.themes.Soft(), title="VideoEkko", css="footer {visibility: hidden}") as demo:
+    with gr.Blocks(theme=gr.themes.Soft(), title="VideoEkko", css="footer {visibility: hidden}") as demo: # type: ignore
         show_interface(demo)
     demo.launch(server_name="0.0.0.0", server_port=7860, share=False, debug=True)
 

@@ -1,6 +1,6 @@
 import platform
-import sys
 import subprocess
+import sys
 from getpass import getpass
 
 print('Start VideoEkko Installation')
@@ -9,14 +9,14 @@ subprocess.run([sys.executable, "-m", "pip", "install", "distro==1.9.0", "rich==
                     capture_output=True, text=True)
 
 system = platform.system()
-password = None
+password = ""
 if system == 'Linux':
     password = getpass(prompt='Enter root password: ')
 
-
-from rich.markdown import Markdown
-from rich.console import Console
 import distro
+from rich.console import Console
+from rich.markdown import Markdown
+
 console = Console()
 
 
@@ -27,13 +27,13 @@ def install_packages(*packages):
     if process.stdout:
         for line in process.stdout:
             console.print(line, end='')
+        process.stdout.close()
     
     if process.stderr:
         for line in process.stderr:
             console.print(line, end='', style='bold red')
+        process.stderr.close()
 
-    process.stdout.close()
-    process.stderr.close()
     process.wait()
 
     if process.returncode != 0:
@@ -50,13 +50,13 @@ def install_requirements():
         if process.stdout:
             for line in process.stdout:
                 console.print(line, end='')
+            process.stdout.close()
         
         if process.stderr:
             for line in process.stderr:
                 console.print(line, end='', style='bold red')
+            process.stderr.close()
 
-        process.stdout.close()
-        process.stderr.close()
         process.wait()
 
     if process.returncode != 0:
@@ -116,22 +116,21 @@ def install_ffmpeg():
         process = subprocess.Popen(install_cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
         if system == 'Linux':
-            process.stdin.write(password + '\n')
-            process.stdin.flush()
+            if process.stdin:
+                process.stdin.write(password + '\n')
+                process.stdin.flush()
 
 
         if process.stdout:
             for line in process.stdout:
                 console.print(line, end='')
+            process.stdout.close()
 
         if process.stderr:
             for line in process.stderr:
                 console.print(line, end='', style='bold red')
+            process.stderr.close()
             
-
-        process.stdin.close()
-        process.stdout.close()
-        process.stderr.close()
         process.wait()
 
     if process.returncode != 0:
@@ -159,20 +158,20 @@ def install_fonts():
     with console.status("Installing fonts..."):
         process = subprocess.Popen(install_cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
-        process.stdin.write(password + '\n')
-        process.stdin.flush()
+        if process.stdin:
+            process.stdin.write(password + '\n')
+            process.stdin.flush()
 
         if process.stdout:
             for line in process.stdout:
                 console.print(line, end='')
+            process.stdout.close()
 
         if process.stderr:
             for line in process.stderr:
                 console.print(line, end='', style="bold red")
+            process.stderr.close()
 
-        process.stdin.close()
-        process.stdout.close()
-        process.stderr.close()
         process.wait()
 
     if process.returncode != 0:
