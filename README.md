@@ -35,12 +35,13 @@ https://github.com/user-attachments/assets/d6c4e463-d719-41b1-bb61-c05e51009172
 
 ```
 VideoEkko/
+├── install.py              # 一键安装脚本
 ├── backend/                # Python FastAPI 后端
 │   ├── main.py             # API 入口
 │   ├── engine.py           # 核心引擎
 │   ├── ve/                 # 引擎模块 (audio, video, subtitle, gpt)
 │   ├── conf.yaml           # 配置文件
-│   └── requirements.txt    # Python 依赖
+│   └── pyproject.toml      # Python 依赖 (uv)
 ├── frontend/               # React + Tailwind + TypeScript 前端
 │   ├── src/
 │   │   ├── components/     # React 组件
@@ -52,54 +53,29 @@ VideoEkko/
 
 ## 🥳 安装方法
 
-VideoEkko 依赖 **ffmpeg** 和 **whisper**
+### 前置要求
+- [Python 3.12+](https://www.python.org/downloads/)
+- [uv](https://docs.astral.sh/uv/) — Python 包管理器
+- [Node.js](https://nodejs.org/) — 前端运行时
+- [Homebrew](https://brew.sh) (macOS) — 用于安装 ffmpeg
 
 ### 一键安装
+
 ```shell
-# 创建 conda 虚拟环境
-conda create -n videoekko -y python=3.12
-# 激活环境
-conda activate videoekko
-# 启动安装脚本
-cd backend && python install.py
+npm install        # 安装前端依赖，然后自动执行 install.py 配置后端
 ```
 
-### 手动安装依赖
+`npm install` 会自动触发 `postinstall` 脚本，完成：
+- 安装 ffmpeg（macOS 自动安装 ffmpeg-full，含字幕渲染支持）
+- 安装 OpenAI Whisper
+- 同步 Python 依赖（uv sync）
 
-1. **安装 [ffmpeg](https://www.ffmpeg.org)**
+### 手动安装
 
-```shell
-# Ubuntu/Debian
-sudo apt install -y ffmpeg
-
-# CentOS/Fedora
-sudo yum install -y ffmpeg
-
-# MacOS
-brew install ffmpeg
-
-# Windows
-choco install ffmpeg
-```
-
-2. **安装 [whisper](https://github.com/openai/whisper)**
+如果自动安装失败，可以单独执行后端安装脚本：
 
 ```shell
-pip install -U openai-whisper
-```
-
-3. **安装 Python 依赖**
-
-```shell
-cd backend
-pip install -r requirements.txt
-```
-
-4. **安装前端依赖**
-
-```shell
-cd frontend
-npm install
+./install.py       # 或者：python3 install.py
 ```
 
 ## 🛠️ 使用方法
@@ -107,15 +83,17 @@ npm install
 ### Web 页面（推荐）
 
 ```shell
-# 1. 启动后端 API 服务
-cd backend
-python main.py
+npm start          # 一键启动前后端，浏览器打开 http://localhost:5173
+```
 
-# 2. 启动前端开发服务器（新终端）
-cd frontend
+或者分别启动：
+
+```shell
+# 终端 1：启动后端
+npm run backend
+
+# 终端 2：启动前端
 npm run dev
-
-# 3. 浏览器打开 http://localhost:5173
 ```
 
 ### 命令行
@@ -124,16 +102,17 @@ npm run dev
 # 1. 将需要操作的视频放进 backend/source 文件夹中
 # 2. 配置 backend/conf.yaml
 # 3. 执行处理引擎
-cd backend && python engine.py
+cd backend && uv run python engine.py
 ```
 
 ## 🤔 技术栈
 
 - **前端**: React 18 + TypeScript + Tailwind CSS + Vite
 - **后端**: Python + FastAPI + Uvicorn
+- **包管理**: uv (Python)、npm (Node)
 - **语音识别**: OpenAI Whisper
 - **翻译**: GPT API (SiliconFlow / DeepSeek / OpenAI)
-- **视频处理**: FFmpeg
+- **视频处理**: FFmpeg (macOS 需 ffmpeg-full 以获得 libass 字幕支持)
 
 ## License
 VideoEkko is released under the MIT License. See [LICENSE](./LICENSE) for further details.
