@@ -115,5 +115,18 @@ frontend/dist/
 # ── Env ────────────────────────────────────────────
 .env
 
+# ── Editor backup / swap ───────────────────────────
+*~
+*.swp
+*.swo
+*.bak
+
+# ── TypeScript ──────────────────────────────────────
+*.tsbuildinfo
+
+# ── ESLint / Prettier ───────────────────────────────
+.eslintcache
+.prettiercache
+
 # ── Old Gradio ─────────────────────────────────────
 .gradio
