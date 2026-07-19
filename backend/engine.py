@@ -26,7 +26,18 @@ _TEMP_PATH = os.path.join(constants.ROOT_PATH, 'temp')
 
 console = Console()
 
-def generate_videos(input: str = None):
+def generate_videos(input: str = None, progress_callback=None):
+    """Generate translated videos.
+
+    Args:
+        input: Path to a video file or directory.
+        progress_callback: Optional callable(step: int, message: str) for real-time progress.
+    """
+    def report(step: int, message: str):
+        if progress_callback:
+            progress_callback(step, message)
+        console.print(Markdown(message))
+
     logger.info(f"VideoEkko engine start. generating videos from: {input}")
     start_time = time.time()
 
@@ -43,20 +54,20 @@ def generate_videos(input: str = None):
     for video_file in video_files:
         try:
             # Get audio from video
-            console.print(Markdown('# Step1: Extracting audio from video'))
+            report(1, '# Step1: Extracting audio from video')
             audio_path = video.extract_audio(video_file['path'], os.path.join(_TEMP_PATH, video_file['name']))
 
             # Convert audio to text
-            console.print(Markdown('# Step2: Transforming audio to text'))
+            report(2, '# Step2: Transforming audio to text')
             text_file_map = audio.transform_to_text(audio_path, _TEMP_PATH)
 
             # Translate text into the corresponding language
-            console.print(Markdown('# Step3: Translating subtitle file'))
+            report(3, '# Step3: Translating subtitle file')
             translated_result = subtitle.translate(text_file_map['srt'])
             translated_file = subtitle.save(translated_result, _TEMP_PATH)
 
             # Write translated text to video
-            console.print(Markdown('# Step4: Merging subtitle into video'))
+            report(4, '# Step4: Merging subtitle into video')
             video.merge_subtitle(video_file['path'], translated_file, os.path.join(_OUTPUT_PATH, video_file['fullname']))
 
             output_videos.append(os.path.join(_OUTPUT_PATH, video_file['fullname']))

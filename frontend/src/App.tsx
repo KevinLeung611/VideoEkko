@@ -73,13 +73,6 @@ export default function App() {
               </ol>
             </div>
           </div>
-
-          {/* Tip */}
-          <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4">
-            <p className="text-sm text-amber-700">
-              ⚠️ 友情提示：DeepSeek 服务器不稳定，使用 DeepSeek 平台生成时间可能较长且容易出错，建议使用 SiliconFlow。
-            </p>
-          </div>
         </div>
       </main>
     </div>

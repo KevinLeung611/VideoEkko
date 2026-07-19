@@ -1,0 +1,24 @@
+[project]
+name = "videoekko-backend"
+version = "2.0.0"
+description = "VideoEkko - 简单易用的视频翻译工具后端"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi==0.115.6",
+    "uvicorn[standard]==0.34.0",
+    "python-multipart==0.0.20",
+    "aiofiles==24.1.0",
+    "requests==2.32.3",
+    "pyyaml==6.0.2",
+    "progressbar2==4.2.0",
+    "chardet==4.0.0",
+    "socksio==1.0.0",
+    "tqdm==4.67.1",
+    "python-dotenv==0.21.0",
+    "openai==1.60.1",
+    "rich==13.9.4",
+    "distro==1.9.0",
+    "torch>=2.0.0",
+    "openai-whisper",
+    "httpx",
+]

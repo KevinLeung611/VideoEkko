@@ -1,6 +1,6 @@
 import type { GPTConfig, SSEMessage } from '../types';
 
-const BASE = '/api';
+const BASE = 'http://localhost:8000/api';
 
 export async function fetchConfig(): Promise<GPTConfig> {
   const res = await fetch(`${BASE}/config`);

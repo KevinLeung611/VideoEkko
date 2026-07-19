@@ -3,7 +3,20 @@ import sys
 import json
 import asyncio
 import logging
+import queue
 import threading
+
+# ── Logging must be configured BEFORE importing engine (which also calls basicConfig) ──
+logging.basicConfig(
+    level=logging.INFO,
+    handlers=[
+        logging.FileHandler("logs/videoekko.log", mode="a", encoding="utf-8"),
+        logging.StreamHandler(),
+    ],
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    force=True,
+)
+logger = logging.getLogger(__name__)
 
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,15 +27,6 @@ from ve.common import config as ve_config
 
 # Ensure backend directory is on path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-
-logging.basicConfig(
-    level=logging.INFO,
-    filename="logs/videoekko.log",
-    filemode="a",
-    encoding="utf-8",
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
-logger = logging.getLogger(__name__)
 
 app = FastAPI(title="VideoEkko API", version="2.0.0")
 
@@ -35,18 +39,9 @@ app.add_middleware(
 )
 
 # ── Constants ──────────────────────────────────────────────────────────────────
-_DEFAULT_PLATFORM = "silicon"
+_DEFAULT_PLATFORM = "deepseek"
 
-_PLATFORM_MODEL_MAP = {
-    "silicon": [
-        "Pro/deepseek-ai/DeepSeek-V3",
-        "Pro/deepseek-ai/DeepSeek-R1",
-        "Qwen/Qwen2.5-72B-Instruct-128K",
-        "meta-llama/Llama-3.3-70B-Instruct",
-    ],
-    "deepseek": ["deepseek-chat", "deepseek-reasoner"],
-    "openai": ["gpt-4o"],
-}
+_PLATFORMS = ["deepseek", "silicon", "openai"]
 
 _LANG_MAP = {
     "中文": "Chinese",
@@ -76,7 +71,6 @@ class ConfigResponse(BaseModel):
     srcLang: str
     targetLang: str
     platforms: list[str]
-    models: dict
 
 
 # ── API Endpoints ──────────────────────────────────────────────────────────────
@@ -95,8 +89,7 @@ def get_config():
         apiKey=gpt_cfg.get("apiKey") or "",
         srcLang=reverse_lang.get(global_cfg.get("src_lang", "English"), "英文"),
         targetLang=reverse_lang.get(global_cfg.get("target_lang", "Chinese"), "中文"),
-        platforms=list(_PLATFORM_MODEL_MAP.keys()),
-        models=_PLATFORM_MODEL_MAP,
+        platforms=_PLATFORMS,
     )
 
 
@@ -137,6 +130,8 @@ async def generate_video(
     if not apiKey:
         raise HTTPException(status_code=400, detail="API Key is required")
 
+    logger.info(f"Generate video request: platform={gptPlatform}, model={gptModel}, file={video.filename}")
+
     # Save uploaded video
     upload_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "source")
     os.makedirs(upload_dir, exist_ok=True)
@@ -152,40 +147,45 @@ async def generate_video(
     ve_config.get_config()["src_lang"] = _LANG_MAP.get(srcLang, "English")
     ve_config.get_config()["target_lang"] = _LANG_MAP.get(targetLang, "Chinese")
 
+    progress_queue: queue.Queue = queue.Queue()
+
     async def event_stream():
         try:
-            yield f"data: {json.dumps({'type': 'progress', 'step': 1, 'message': '开始提取音频...'})}\n\n"
-
-            # Run the engine in a thread to avoid blocking
+            # Run the engine in a thread, reporting real progress via queue
             result = {}
             error = None
+
+            def progress_callback(step: int, message: str):
+                progress_queue.put(("progress", step, message))
 
             def run_engine():
                 nonlocal result, error
                 try:
-                    paths = ve_engine.generate_videos(video_path)
+                    paths = ve_engine.generate_videos(video_path, progress_callback=progress_callback)
                     result["paths"] = paths
                 except Exception as e:
+                    logger.exception("Engine generate_videos failed")
                     error = str(e)
+                finally:
+                    progress_queue.put(("done",))
 
             thread = threading.Thread(target=run_engine)
             thread.start()
 
-            # Poll for completion with progress updates
-            step = 2
-            messages = [
-                "正在转换音频为文字...",
-                "正在翻译字幕...",
-                "正在将字幕合成到视频...",
-                "正在完成...",
-            ]
-            msg_idx = 0
-            while thread.is_alive():
-                await asyncio.sleep(2)
-                if msg_idx < len(messages):
-                    yield f"data: {json.dumps({'type': 'progress', 'step': step, 'message': messages[msg_idx]})}\n\n"
-                    step += 1
-                    msg_idx += 1
+            while True:
+                try:
+                    item = await asyncio.to_thread(progress_queue.get, timeout=1)
+                except queue.Empty:
+                    if not thread.is_alive():
+                        break
+                    continue
+
+                kind = item[0]
+                if kind == "progress":
+                    _, step, message = item
+                    yield f"data: {json.dumps({'type': 'progress', 'step': step, 'message': message})}\n\n"
+                elif kind == "done":
+                    break
 
             thread.join()
 

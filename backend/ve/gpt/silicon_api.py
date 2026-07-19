@@ -7,7 +7,7 @@ from ve.gpt.open_api import OpenAPI
 
 
 class SiliconAPI(OpenAPI):
-    base_url = "https://api.siliconflow.cn"
+    base_url = "https://api.siliconflow.cn/v1"
 
     def __init__(self, model, api_key):
         super().__init__(model, api_key, self.base_url)

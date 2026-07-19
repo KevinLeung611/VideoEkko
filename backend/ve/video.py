@@ -1,5 +1,6 @@
 import logging
 import os
+import shutil
 import subprocess
 import sys
 from rich.console import Console
@@ -9,6 +10,9 @@ from tqdm import tqdm
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 logger = logging.getLogger(__name__)
 
+# Use ffmpeg-full (with libass/subtitles support) if available, otherwise fall back to system ffmpeg
+_FFMPEG = shutil.which("/opt/homebrew/opt/ffmpeg-full/bin/ffmpeg") or "ffmpeg"
+
 console = Console()
 
 def extract_audio(video_file: str, output_file: str):
@@ -16,7 +20,7 @@ def extract_audio(video_file: str, output_file: str):
         logger.info(f"Start to extract audio from video, params: {[video_file, output_file]}")
 
         with tqdm(desc="Extracting audio", total=1, dynamic_ncols=True, file=sys.stdout) as pbar:
-            cmd = ["ffmpeg", "-i", video_file, "-vn", "-acodec", "pcm_s16le", "-ar", "44100", "-ac", "1",
+            cmd = [_FFMPEG, "-i", video_file, "-vn", "-acodec", "pcm_s16le", "-ar", "44100", "-ac", "1",
                    output_file + ".wav", "-y"]
 
             logger.info(f"Executing command: {' '.join(cmd)}")
@@ -43,7 +47,7 @@ def merge_subtitle(video_file: str, subtitle_file: str, output_file: str):
         fonts = get_font_from_os()
 
         with tqdm(desc="Merging subtitle", total=1, dynamic_ncols=True, file=sys.stdout) as pbar:
-            cmd = ["ffmpeg",
+            cmd = [_FFMPEG,
                    "-i", video_file,
                    "-vf",
                    f"subtitles={subtitle_file}:force_style='FontName={fonts['font_name']},FontSize={fonts['size']},PrimaryColour=&HFFFFFF,Outline=1,OutlineColour=&H000000'",
@@ -66,7 +70,7 @@ def get_font_from_os():
     import distro
     os_name = distro.name()
     if os_name == 'Darwin':
-        return {'font_name': 'Yuanti SC', 'size': 12}
+        return {'font_name': 'Heiti SC', 'size': 12}
     elif os_name == 'Windows':
         return {'font_name': 'Microsoft Yahei', 'size': 14}
     else:

@@ -20,7 +20,8 @@ export default function VideoUploader({ config }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
-  const totalSteps = 5;
+  const steps = ['提取音频', '语音转文字', '翻译字幕', '合成字幕'];
+  const totalSteps = steps.length;
 
   const handleFile = useCallback((file: File) => {
     if (!file.type.startsWith('video/')) {
@@ -64,7 +65,7 @@ export default function VideoUploader({ config }: Props) {
       },
       (msg: SSEMessage) => {
         if (msg.type === 'progress') {
-          setProgressStep(msg.step || 1);
+          setProgressStep((msg.step || 1) - 1);
           setProgressMsg(msg.message || '');
         }
       },
@@ -171,7 +172,7 @@ export default function VideoUploader({ config }: Props) {
           </div>
 
           <div className="space-y-2">
-            {['提取音频', '语音转文字', '翻译字幕', '合成字幕', '完成'].map((label, i) => (
+            {steps.map((label, i) => (
               <div key={i} className="flex items-center gap-3 text-sm">
                 {i < progressStep ? (
                   <svg className="h-5 w-5 shrink-0 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

@@ -9,6 +9,12 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:8000',
         changeOrigin: true,
+        timeout: 0,
+        configure: (proxy) => {
+          proxy.on('error', (err, _req, _res) => {
+            console.error('[vite proxy error]', err.message);
+          });
+        },
       },
     },
   },

@@ -5,7 +5,6 @@ export interface GPTConfig {
   srcLang: string;
   targetLang: string;
   platforms: string[];
-  models: Record<string, string[]>;
 }
 
 export interface SSEMessage {

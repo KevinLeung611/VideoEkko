@@ -15,7 +15,18 @@ export default function Sidebar({ config, loading, onConfigLoaded, onConfigChang
   useEffect(() => {
     fetchConfig()
       .then(onConfigLoaded)
-      .catch((err) => console.error('Failed to load config:', err));
+      .catch((err) => {
+        console.error('Failed to load config:', err);
+        // 即使加载失败也要结束 loading，避免页面卡在"加载配置中..."
+        onConfigLoaded({
+          platform: 'deepseek',
+          model: '',
+          apiKey: '',
+          srcLang: '英文',
+          targetLang: '中文',
+          platforms: ['deepseek', 'silicon', 'openai'],
+        });
+      });
   }, []);
 
   const handleSave = async () => {
@@ -33,8 +44,6 @@ export default function Sidebar({ config, loading, onConfigLoaded, onConfigChang
     }
   };
 
-  const models = config?.models[config?.platform] || [];
-
   return (
     <aside className="flex w-[340px] shrink-0 flex-col border-r border-gray-200 bg-white">
       <div className="border-b border-gray-100 px-5 py-4">
@@ -44,7 +53,7 @@ export default function Sidebar({ config, loading, onConfigLoaded, onConfigChang
       <div className="flex-1 space-y-4 overflow-y-auto px-5 py-4">
         {/* Platform */}
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">GPT平台</label>
+          <label className="mb-1 block text-sm font-medium text-gray-700">大模型供应商</label>
           <select
             className="select-field"
             value={config?.platform || ''}
@@ -59,18 +68,15 @@ export default function Sidebar({ config, loading, onConfigLoaded, onConfigChang
 
         {/* Model */}
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">GPT模型</label>
-          <select
-            className="select-field"
+          <label className="mb-1 block text-sm font-medium text-gray-700">大模型</label>
+          <input
+            type="text"
+            className="input-field"
+            placeholder="请输入模型名称，如 deepseek-chat"
             value={config?.model || ''}
             onChange={(e) => onConfigChange({ model: e.target.value })}
             disabled={loading}
-          >
-            <option value="">请选择模型</option>
-            {models.map((m) => (
-              <option key={m} value={m}>{m}</option>
-            ))}
-          </select>
+          />
         </div>
 
         {/* API Key */}

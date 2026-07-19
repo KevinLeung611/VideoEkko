@@ -5,14 +5,13 @@ from getpass import getpass
 
 print('Start VideoEkko Installation')
 
-subprocess.run([sys.executable, "-m", "pip", "install", "distro==1.9.0", "rich==13.9.4"],
-                    capture_output=True, text=True)
-
 system = platform.system()
 password = None
 if system == 'Linux':
     password = getpass(prompt='Enter root password: ')
 
+# Ensure deps are installed before importing rich/distro
+subprocess.run(["uv", "sync"], check=True)
 
 from rich.markdown import Markdown
 from rich.console import Console
@@ -21,7 +20,7 @@ console = Console()
 
 
 def install_packages(*packages):
-    process = subprocess.Popen([sys.executable, "-m", "pip", "install", *packages],
+    process = subprocess.Popen(["uv", "pip", "install", *packages],
                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
     if process.stdout:
@@ -44,13 +43,13 @@ def install_packages(*packages):
 def install_requirements():
     console.print(Markdown("#  Install requirements "))
     with console.status("Installing requirements..."):
-        process = subprocess.Popen([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"],
+        process = subprocess.Popen(["uv", "sync"],
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
         if process.stdout:
             for line in process.stdout:
                 console.print(line, end='')
-        
+
         if process.stderr:
             for line in process.stderr:
                 console.print(line, end='', style='bold red')
@@ -61,7 +60,7 @@ def install_requirements():
 
     if process.returncode != 0:
         console.print('> Requirements install failed.', style="bold red")
-        raise SystemExit(1)    
+        raise SystemExit(1)
     else:
         console.print("> Requirements installed successfully!", style="bold green")
 
@@ -70,7 +69,7 @@ def check_whisper():
     console = Console()
     console.print(Markdown("#  Check whisper installation "))
     try:
-        subprocess.run([sys.executable, "-m", "pip", "show", "openai-whisper"],
+        subprocess.run(["uv", "pip", "show", "openai-whisper"],
                        check=True, capture_output=True, text=True)
     except subprocess.CalledProcessError:
         console.print("> Whisper is not installed. Start installing Whisper.", style="bold red")
@@ -82,7 +81,7 @@ def check_whisper():
 
 def install_whisper():
     with console.status("Installing Whisper..."):
-        install_packages("-U", "openai-whisper")
+        install_packages("openai-whisper")
 
 
 def check_ffmpeg():
