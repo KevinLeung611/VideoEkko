@@ -1,6 +1,5 @@
 import logging
 import os
-import shutil
 import subprocess
 import sys
 from rich.console import Console
@@ -10,10 +9,10 @@ from tqdm import tqdm
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 logger = logging.getLogger(__name__)
 
-# Use ffmpeg-full (with libass/subtitles support) if available, otherwise fall back to system ffmpeg
-_FFMPEG = shutil.which("/opt/homebrew/opt/ffmpeg-full/bin/ffmpeg") or "ffmpeg"
-
 console = Console()
+
+
+_FFMPEG = "ffmpeg"
 
 def extract_audio(video_file: str, output_file: str):
     try:
