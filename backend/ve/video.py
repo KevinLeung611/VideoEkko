@@ -12,7 +12,20 @@ logger = logging.getLogger(__name__)
 console = Console()
 
 
-_FFMPEG = "ffmpeg"
+def _find_ffmpeg() -> str:
+    """Return the path to an ffmpeg binary with libass (subtitles filter).
+
+    On macOS, ffmpeg-full is keg-only and not on PATH — detect it explicitly.
+    """
+    import platform
+    if platform.system() == "Darwin":
+        for prefix in ("/opt/homebrew", "/usr/local"):
+            ffmpeg = os.path.join(prefix, "opt", "ffmpeg-full", "bin", "ffmpeg")
+            if os.path.isfile(ffmpeg):
+                return ffmpeg
+    return "ffmpeg"
+
+_FFMPEG = _find_ffmpeg()
 
 def extract_audio(video_file: str, output_file: str):
     try:

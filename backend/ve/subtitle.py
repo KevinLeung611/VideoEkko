@@ -3,6 +3,7 @@ import os
 import re
 import sys
 import json
+import time
 
 from rich.console import Console
 from tqdm.contrib.concurrent import thread_map
@@ -87,17 +88,31 @@ def do_translate(batch: list[dict]):
     api = GptFactory(platform).generate_api(model, api_key)
 
     downgrade_result = [{'translation_text': "翻译失败"} for _ in batch]
-    try:
-        translated_content: str = api.completions(prompt, source_block)
-        if not translated_content:
-            raise VideoEkkoError("Open api return None")
 
-        json_pattern = re.compile(r'"translations":\s*(\[.*?\])', re.S)
-        json_result = re.search(json_pattern, translated_content)
+    MAX_RETRIES = 3
+    translation_list = None
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            translated_content: str = api.completions(prompt, source_block)
+            if not translated_content:
+                raise VideoEkkoError("Open api return None")
 
-        translation_list = json.loads(json_result.group(1)) if json_result else downgrade_result
-    except Exception:
-        logger.exception("Invoke open api failed.")
+            json_pattern = re.compile(r'"translations":\s*(\[.*?\])', re.S)
+            json_result = re.search(json_pattern, translated_content)
+
+            if not json_result:
+                raise VideoEkkoError("Failed to parse translation JSON from response")
+
+            translation_list = json.loads(json_result.group(1))
+            break  # success
+        except Exception:
+            logger.warning(f"Translation attempt {attempt}/{MAX_RETRIES} failed.")
+            if attempt < MAX_RETRIES:
+                time.sleep(2 ** attempt)  # exponential backoff: 2s, 4s
+            else:
+                logger.exception("All translation attempts failed.")
+
+    if translation_list is None:
         translation_list = downgrade_result
 
     # Build result list, matching translations to original items by position
