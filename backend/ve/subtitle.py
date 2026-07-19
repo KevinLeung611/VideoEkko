@@ -29,18 +29,19 @@ def translate(subtitle_file: str):
         if suffix_name == "srt":
             srt_infos = parse.parse_srt_file(subtitle_file)
 
-            max_workers = os.cpu_count() + 2
-            # 如果是deepseek降低为1条线程，因为deepseek服务器容易超负载，返回错误数据
-            if platform == 'deepseek':
-                max_workers = 1
+            # Group into batches of 20 lines for translation
+            BATCH_SIZE = 20
+            batches = [srt_infos[i:i + BATCH_SIZE] for i in range(0, len(srt_infos), BATCH_SIZE)]
 
-            results = thread_map(do_translate, srt_infos, max_workers=max_workers, desc="Translating subtitle", dynamic_ncols=True, file=sys.stdout)
+            max_workers = os.cpu_count() + 2
+
+            results = thread_map(do_translate, batches, max_workers=max_workers, desc="Translating subtitle", dynamic_ncols=True, file=sys.stdout)
 
             translated_contents = []
             for result in results:
-                translated_contents.append(result)
+                translated_contents.extend(result)
 
-            translated_contents = sorted(translated_contents, key=lambda x:x['start_time'])
+            translated_contents = sorted(translated_contents, key=lambda x: x['start_time'])
 
             translate_result = {
                 'type': 'srt',
@@ -55,49 +56,61 @@ def translate(subtitle_file: str):
         raise e
 
 
-def do_translate(srt_info: dict):
+def do_translate(batch: list[dict]):
+    """Translate a batch of subtitle entries (up to 20 lines at once)."""
     target_lang = config.get_config('target_lang')
     src_lang = config.get_config()['src_lang']
 
     # The same language not need to be translated. Just return the original data.
     if src_lang == target_lang:
-        return srt_info
+        return batch
+
+    # Build numbered list of source texts
+    source_lines = [f"{item['index']}. {item['content']}" for item in batch]
+    source_block = '\n'.join(source_lines)
 
     prompt = f"""
-    You are a Netflix subtitle translator. Please translate the following {src_lang} sentence into {"Simplified Chinese" if target_lang == "Chinese" else target_lang}.
-    Do not provide any additional explanations, improvements, comments, notes or suggestions. Only provide the final translation.
-    Finally return the following json structure exactly:
-    "translations": {{
-        "translation_text": ""
-    }}
-    The 'translation_text' field just stores the final translation text.
-    And the translation need to be more personality and modernity.
+    You are a Netflix subtitle translator. Please translate the following {src_lang} sentences into {"Simplified Chinese" if target_lang == "Chinese" else target_lang}.
+    Do not provide any additional explanations, improvements, comments, notes or suggestions. Only provide the final translations.
+    Translate each numbered sentence and return them in the same order as the following json structure:
+    "translations": [
+        {{"translation_text": ""}},
+        {{"translation_text": ""}},
+        ...
+    ]
+    The 'translation_text' field stores the final translation text for each corresponding sentence.
+    The translations need to be more personality and modernity.
     """
     platform = config.get_config('gpt')['platform']
     api_key = config.get_config('gpt')['apiKey']
     model = config.get_config('gpt')['model']
     api = GptFactory(platform).generate_api(model, api_key)
 
-    downgrade_result = {'translation_text': "翻译失败"}  # 降级结果
+    downgrade_result = [{'translation_text': "翻译失败"} for _ in batch]
     try:
-        translated_content: str = api.completions(prompt, srt_info['content'])
+        translated_content: str = api.completions(prompt, source_block)
         if not translated_content:
             raise VideoEkkoError("Open api return None")
 
-        json_pattern = re.compile(r'"translations":.*?({.*?})', re.S)
+        json_pattern = re.compile(r'"translations":\s*(\[.*?\])', re.S)
         json_result = re.search(json_pattern, translated_content)
 
-        translation_info = json.loads(json_result.group(1)) if json_result else downgrade_result
+        translation_list = json.loads(json_result.group(1)) if json_result else downgrade_result
     except Exception:
         logger.exception("Invoke open api failed.")
-        translation_info = downgrade_result
+        translation_list = downgrade_result
 
-    return {
-        'index': srt_info['index'],
-        'start_time': srt_info['start_time'],
-        'end_time': srt_info['end_time'],
-        'content': f"{translation_info['translation_text']}\n{srt_info['content']}"
-    }
+    # Build result list, matching translations to original items by position
+    result = []
+    for i, item in enumerate(batch):
+        trans_text = translation_list[i]['translation_text'] if i < len(translation_list) else "翻译失败"
+        result.append({
+            'index': item['index'],
+            'start_time': item['start_time'],
+            'end_time': item['end_time'],
+            'content': f"{trans_text}\n{item['content']}"
+        })
+    return result
 
 
 def save(translate_result, output_dir: str):

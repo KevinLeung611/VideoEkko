@@ -210,4 +210,30 @@ async def generate_video(
 # ── Main ───────────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    import signal
+    import logging
+
+    class _CancelledErrorFilter(logging.Filter):
+        """Suppress CancelledError tracebacks during graceful shutdown."""
+        def filter(self, record):
+            return "CancelledError" not in record.getMessage()
+
+    # Attach to uvicorn/starlette loggers that log the lifespan CancelledError
+    for name in ("uvicorn.error", "uvicorn.asgi"):
+        logging.getLogger(name).addFilter(_CancelledErrorFilter())
+
+    class _GracefulServer(uvicorn.Server):
+        def install_signal_handlers(self):
+            pass  # 自己处理信号，避免 KeyboardInterrupt 级联报错
+
+    config = uvicorn.Config(app, host="0.0.0.0", port=8000)
+    server = _GracefulServer(config)
+
+    def _shutdown(sig, frame):
+        print("\nGracefully shutting down...")
+        server.should_exit = True
+
+    signal.signal(signal.SIGINT, _shutdown)
+    signal.signal(signal.SIGTERM, _shutdown)
+
+    server.run()

@@ -1,17 +1,25 @@
+#!/usr/bin/env python3
 import platform
 import sys
+import os
 import subprocess
+
+# If not running inside the project venv, sync deps and re-exec with venv Python.
+_PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
+_BACKEND_DIR = os.path.join(_PROJECT_DIR, "backend")
+_VENV_PYTHON = os.path.join(_BACKEND_DIR, ".venv", "bin", "python")
+if sys.executable != _VENV_PYTHON:
+    subprocess.run(["uv", "sync"], check=True, cwd=_BACKEND_DIR)
+    os.execv(_VENV_PYTHON, [_VENV_PYTHON, __file__])
+
 from getpass import getpass
 
-print('Start VideoEkko Installation')
+print("Start VideoEkko Installation")
 
 system = platform.system()
 password = None
 if system == 'Linux':
     password = getpass(prompt='Enter root password: ')
-
-# Ensure deps are installed before importing rich/distro
-subprocess.run(["uv", "sync"], check=True)
 
 from rich.markdown import Markdown
 from rich.console import Console
@@ -21,7 +29,8 @@ console = Console()
 
 def install_packages(*packages):
     process = subprocess.Popen(["uv", "pip", "install", *packages],
-                               stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                               stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+                               cwd=_BACKEND_DIR)
 
     if process.stdout:
         for line in process.stdout:
@@ -44,7 +53,8 @@ def install_requirements():
     console.print(Markdown("#  Install requirements "))
     with console.status("Installing requirements..."):
         process = subprocess.Popen(["uv", "sync"],
-                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+                                   cwd=_BACKEND_DIR)
 
         if process.stdout:
             for line in process.stdout:
@@ -70,7 +80,8 @@ def check_whisper():
     console.print(Markdown("#  Check whisper installation "))
     try:
         subprocess.run(["uv", "pip", "show", "openai-whisper"],
-                       check=True, capture_output=True, text=True)
+                       check=True, capture_output=True, text=True,
+                       cwd=_BACKEND_DIR)
     except subprocess.CalledProcessError:
         console.print("> Whisper is not installed. Start installing Whisper.", style="bold red")
         install_whisper()

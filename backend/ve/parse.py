@@ -6,7 +6,7 @@ from ve.common import constants
 
 _VIDEO_SUFFIX = constants.VIDEO_SUFFIX
 
-def retrieve_videos(video_path: str = None):
+def retrieve_videos(video_path: str | None = None):
     files = [file.name for file in Path(video_path).iterdir() if file.is_file()]
 
     video_files = [file for file in files if file.split('.')[1] in _VIDEO_SUFFIX]
@@ -27,20 +27,23 @@ def retrieve_videos(video_path: str = None):
 def parse_srt_file(srt_file: str) -> list[dict]:
     result = []
     with open(srt_file, 'r', encoding='utf-8') as f:
-        srt_lines = [line for line in f.readlines()]
+        raw = f.read().strip()
 
-    for i in range(0, len(srt_lines), 4):
-        index = int(srt_lines[i].strip())
-        time_range = srt_lines[i+1].strip()
-        start_time = time_range.split(' --> ')[0]
-        end_time = time_range.split(' --> ')[1]
-        content = srt_lines[i+2].strip()
+    blocks = raw.split('\n\n')
+    for block in blocks:
+        lines = block.strip().split('\n')
+        if len(lines) < 3:
+            continue
+        index = int(lines[0].strip())
+        time_range = lines[1].strip()
+        start_time, end_time = time_range.split(' --> ')
+        content = '\n'.join(lines[2:]).strip()
 
         result.append({
             'index': index,
             'start_time': start_time,
             'end_time': end_time,
-            'content': content
+            'content': content,
         })
 
     return result
