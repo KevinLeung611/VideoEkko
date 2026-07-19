@@ -3,9 +3,9 @@ import os
 import subprocess
 import sys
 import torch
+import wave
 from datetime import datetime
 
-from pydub import AudioSegment as au
 from rich.console import Console
 from tqdm import tqdm
 
@@ -15,6 +15,10 @@ from ve.error import VideoEkkoError
 
 logger = logging.getLogger(__name__)
 console = Console()
+
+def _get_wav_duration_seconds(audio_file: str) -> int:
+    with wave.open(audio_file, 'rb') as wav_file:
+        return int(wav_file.getnframes() / wav_file.getframerate())
 
 def transform_to_text(audio_file: str, output_dir: str):
     logger.info(f"Start to transform audio to text, params: {[audio_file, output_dir]}")
@@ -33,7 +37,7 @@ def transform_to_text(audio_file: str, output_dir: str):
         raise VideoEkkoError("Model not specified in config.yaml")
 
     try:
-        with tqdm(desc="Audio Transforming", total=len(au.from_wav(audio_file)) // 1000, dynamic_ncols=True,
+        with tqdm(desc="Audio Transforming", total=_get_wav_duration_seconds(audio_file), dynamic_ncols=True,
                   file=sys.stdout) as tbar:
 
             device = 'cuda' if torch.cuda.is_available() else 'cpu'

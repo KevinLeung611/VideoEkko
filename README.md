@@ -1,4 +1,4 @@
-# 👉🏻 VideoEkko 👈🏻 
+# 👉🏻 VideoEkko 👈🏻
 
 [![SVG Banners](https://svg-banners.vercel.app/api?type=luminance&text1=VideoEkko%20📹&width=800&height=300)](https://github.com/Akshay090/svg-banners)
 
@@ -31,46 +31,42 @@ https://github.com/user-attachments/assets/d6c4e463-d719-41b1-bb61-c05e51009172
 </tr>
 </table>
 
+## 🏗️ 项目结构
 
-
-## 💁🏻 操作界面
-
-<table>
-<tr>
-<td width="50%">
-
-### Web
----
-
-<img src="asset/web-demo.png" alt="web-demo" width="480" height="280"/>
-</td>
-
-<td width="50%">
-
-### Command
----
-
-<img src="asset/cli-demo.png" alt="cli-demo" width="480" height="280"/>
-</td>
-</tr>
-</table>
+```
+VideoEkko/
+├── backend/                # Python FastAPI 后端
+│   ├── main.py             # API 入口
+│   ├── engine.py           # 核心引擎
+│   ├── ve/                 # 引擎模块 (audio, video, subtitle, gpt)
+│   ├── conf.yaml           # 配置文件
+│   └── requirements.txt    # Python 依赖
+├── frontend/               # React + Tailwind + TypeScript 前端
+│   ├── src/
+│   │   ├── components/     # React 组件
+│   │   ├── api/            # API 客户端
+│   │   └── App.tsx         # 主应用
+│   └── package.json        # Node 依赖
+└── package.json            # Monorepo 根配置
+```
 
 ## 🥳 安装方法
+
 VideoEkko 依赖 **ffmpeg** 和 **whisper**
 
 ### 一键安装
 ```shell
-# 创建conda虚拟环境
-conda -n videoekko -y python=3.12
+# 创建 conda 虚拟环境
+conda create -n videoekko -y python=3.12
 # 激活环境
 conda activate videoekko
 # 启动安装脚本
-python install.py
+cd backend && python install.py
 ```
 
 ### 手动安装依赖
-1. **安装 [ffmpeg](https://www.ffmpeg.org)** 
 
+1. **安装 [ffmpeg](https://www.ffmpeg.org)**
 
 ```shell
 # Ubuntu/Debian
@@ -86,41 +82,58 @@ brew install ffmpeg
 choco install ffmpeg
 ```
 
-2. **安装 [whisper](https://github.com/openai/whisper)** 
+2. **安装 [whisper](https://github.com/openai/whisper)**
 
 ```shell
 pip install -U openai-whisper
 ```
 
-3. **安装依赖包** 
+3. **安装 Python 依赖**
 
 ```shell
+cd backend
 pip install -r requirements.txt
+```
+
+4. **安装前端依赖**
+
+```shell
+cd frontend
+npm install
 ```
 
 ## 🛠️ 使用方法
 
-### WEB 页面
+### Web 页面（推荐）
 
 ```shell
-# 启动服务
-python web.py
+# 1. 启动后端 API 服务
+cd backend
+python main.py
 
-# 服务启动完成后，浏览器打开：localhost:7860
+# 2. 启动前端开发服务器（新终端）
+cd frontend
+npm run dev
+
+# 3. 浏览器打开 http://localhost:5173
 ```
 
 ### 命令行
 
 ```shell
-# 1. 将需要操作的视频放进 source 文件夹中
-# 2. 配置 conf.yaml
+# 1. 将需要操作的视频放进 backend/source 文件夹中
+# 2. 配置 backend/conf.yaml
 # 3. 执行处理引擎
-python engine.py
+cd backend && python engine.py
 ```
 
-## 🤔 参考
-* [Gradio](https://www.gradio.app)
-* [whisper](https://github.com/openai/whisper)
+## 🤔 技术栈
+
+- **前端**: React 18 + TypeScript + Tailwind CSS + Vite
+- **后端**: Python + FastAPI + Uvicorn
+- **语音识别**: OpenAI Whisper
+- **翻译**: GPT API (SiliconFlow / DeepSeek / OpenAI)
+- **视频处理**: FFmpeg
 
 ## License
 VideoEkko is released under the MIT License. See [LICENSE](./LICENSE) for further details.

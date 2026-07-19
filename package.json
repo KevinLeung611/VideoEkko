@@ -1,0 +1,16 @@
+{
+  "name": "videoekko",
+  "version": "2.0.0",
+  "private": true,
+  "description": "VideoEkko - 简单易用的视频翻译工具",
+  "scripts": {
+    "dev": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "backend": "cd backend && .venv/bin/python main.py",
+    "start": "concurrently -n api,web -c blue,green \"npm run backend\" \"wait-on tcp:8000 && npm run dev\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0",
+    "wait-on": "^8.0.1"
+  }
+}

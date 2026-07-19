@@ -193,7 +193,7 @@ def main():
 
     console.print(Markdown('----'))
     console.print("> Installation All Finished!", style="bold green")
-    console.print("> Try to run 'python web.py' or 'python engine.py'. Enjoy! Thank you!", style="bold green")
+    console.print("> Try to run 'python main.py' to start the API server, then 'cd ../frontend && npm run dev' for the web UI.", style="bold green")
 
 
 if __name__ == '__main__':
